@@ -1,0 +1,82 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual env
+venv/
+env/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Secrets — NEVER commit
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*credentials*.json
+
+# Logs
+*.log
+logs/
+traces/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+postgres_data/
+ollama_data/
+
+# Obsidian (giữ vault content nhưng bỏ workspace cache)
+vault/.obsidian/workspace*
+vault/.obsidian/cache
+vault/.obsidian/plugins/*/data.json
+vault/.trash/
+
+# Temporary
+tmp/
+temp/
+*.tmp
+~$*
+
+# Test
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# OS
+Thumbs.db
+desktop.ini
+
+# Frontend (Layer 0 Console)
+pio_lab/layer0_console/web/node_modules/
+pio_lab/layer0_console/web/dist/
+pio_lab/layer0_console/web/.next/

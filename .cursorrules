@@ -1,0 +1,172 @@
+# Pio_lab — Cursor Project Rules
+
+> **Đây là file rules tự động load mỗi session Cursor. KHÔNG xóa.**
+> Cursor / Codex sẽ đọc file này trước khi trả lời bất kỳ câu hỏi nào.
+
+## 🎯 Bạn đang làm gì
+
+Bạn (Cursor AI agent) đang implement dự án **Pio_lab** — Personal AI Company Phase 1 MVP.
+Owner: Sếp Linh.
+
+## 📚 Tài liệu BẮT BUỘC đọc TRƯỚC KHI làm gì
+
+Mỗi session đầu tiên, đọc theo thứ tự:
+
+1. `@CODEX_HANDOFF.md` — Master document (1029 dòng) — toàn bộ context
+2. `@PROGRESS.md` — Milestone đang ở đâu, tiếp theo làm gì
+3. `@STRUCTURE.md` — Bản đồ 162 files
+4. `@docs/PROVIDER_API_REFERENCE.md` — Khi implement provider adapters (M3-M4)
+5. `@docs/EXAMPLES.md` — 10 test scenarios (verify sau mỗi milestone)
+6. `@docs/7_layers.md` — Chi tiết 7 layer architecture
+
+## 🚀 Workflow MỖI MILESTONE
+
+```
+1. Read PROGRESS.md → biết milestone hiện tại (M0..M11)
+2. Read CODEX_HANDOFF.md section M{N} → acceptance criteria
+3. Implement TODO Phase 1 markers trong các file liên quan
+4. Write tests đồng thời (TDD when possible)
+5. Run: pytest tests/unit/ (specific test file của milestone)
+6. Run scenario tương ứng từ docs/EXAMPLES.md
+7. All pass? Update PROGRESS.md (mark milestone done + note)
+8. Git commit: "M{N}: {short description}"
+9. Báo cáo Sếp Linh → đợi approval → next milestone
+```
+
+## ⚙️ Code Conventions (BẮT BUỘC)
+
+- **Python 3.11+** với type hints khắp nơi
+- **Async preferred** cho I/O (httpx, asyncpg, ollama, anthropic AsyncAnthropic)
+- **NEVER use `print()`** — dùng `from pio_lab.utils.logging import logger`
+- **NEVER hardcode API keys** — đọc qua `os.environ[KEY]`
+- **NEVER block event loop** — không `requests`, dùng `httpx`
+- **Imports absolute**: `from pio_lab.core.agent import BaseAgent`
+- **Line length:** 100 chars
+- **Quotes:** double quotes
+- **Naming:** `snake_case` functions/vars, `PascalCase` classes, `SCREAMING_SNAKE_CASE` constants
+- **Docstrings:** Tiếng Việt OK cho docstring, English cho code/identifiers
+
+## 🚫 KHÔNG được làm
+
+- KHÔNG sửa kiến trúc 7 layers (folder name, layer naming) — confirm với Sếp Linh trước
+- KHÔNG xóa hoặc rename file đã có mà không cập nhật imports/refs
+- KHÔNG commit `.env`, `vault/.obsidian/workspace*`, `traces/`, `*.key`, `__pycache__`
+- KHÔNG nhảy cóc milestone (vd: làm M5 trước khi M3 done)
+- KHÔNG implement Phase 2+ features (Distillation training, Portable Export module, Security Engine UI)
+- KHÔNG dùng tools không có trong allowed list (xem `config/security_policy.yaml`)
+- KHÔNG mock test mà không có real test (mock OK trong unit test, integration cần thật)
+
+## 🎯 Phase 1 Scope — chỉ implement những thứ sau
+
+✅ **DO:**
+- Layer 0-6 đầy đủ
+- 4 channels: Telegram, Web, Discord, Zalo
+- 5 phòng ban + 9 workers + Dynamic Registry
+- 5 providers (Codex, Claude, Gemini, DeepSeek, Ollama)
+- PostgreSQL + Obsidian Vault
+- Default security rules từ YAML
+- Trace logger (collect data, không train)
+
+❌ **DON'T (Phase 2+):**
+- Distillation training
+- Portable Export module
+- Security Engine UI
+- WhatsApp / iMessage channels
+- Solid Edge full integration
+- YouTube/TikTok auto-upload đầy đủ (chỉ skeleton + Human Approval gate)
+
+## 🔌 Provider Routing
+
+Mọi LLM call đi qua `pio_lab/providers/router.py`. KHÔNG gọi trực tiếp anthropic/openai SDK trong worker code.
+
+```python
+# ❌ BAD
+from anthropic import AsyncAnthropic
+client = AsyncAnthropic()
+response = await client.messages.create(...)
+
+# ✅ GOOD
+from pio_lab.providers.router import ProviderRouter
+router = get_router()  # singleton
+response = await router.call("coder.frontend", messages, tools=tools)
+```
+
+`routing_key` phải khớp với key trong `config/providers.yaml`.
+
+## 🧪 Testing
+
+- Unit tests: trong `tests/unit/`, fast, dùng mock cho LLM
+- Integration tests: trong `tests/integration/`, cần API keys thật
+- Mỗi milestone DONE phải có tests pass
+- Coverage target: ≥ 70% cho `pio_lab/core/` + `pio_lab/providers/` + `pio_lab/layer3_chief_of_staff/`
+
+## 💡 Khi gặp ambiguity
+
+Trong `PROGRESS.md` có section **"Questions for Sếp Linh"**:
+- Note câu hỏi rõ ràng kèm 2-3 options + recommendation
+- Implement option bạn nghĩ tốt nhất, mark `# TODO: confirm with owner`
+- Tiếp tục — đừng block
+
+## 🎨 Output formatting cho Sếp Linh
+
+Khi báo cáo:
+- Tiếng Việt là chính
+- Markdown có cấu trúc
+- Tóm tắt 5-10 dòng đầu, chi tiết bên dưới
+- Nếu có bug: cho biết file + line + giải thích
+- Nếu có decision: log vào `PROGRESS.md` section "Decisions made"
+
+## 📊 Sau mỗi milestone, update PROGRESS.md
+
+Format:
+```markdown
+### YYYY-MM-DD — Milestone M{N} done
+- ✅ {acceptance criterion 1}
+- ✅ {acceptance criterion 2}
+- 📝 Note: {decisions, deviations, learnings}
+- 🧪 Tests: X pass, Y fail (nếu có)
+- ⏭️ Next: M{N+1}
+```
+
+## 🔄 Khi user gõ "tiếp tục" hoặc "next milestone"
+
+1. Đọc `PROGRESS.md` → xác định milestone tiếp theo
+2. Đọc section milestone đó trong `CODEX_HANDOFF.md`
+3. Bắt đầu implement
+4. KHÔNG hỏi lại nếu đã rõ — tự chạy
+
+## 📦 Build/Run commands
+
+```bash
+# Setup lần đầu
+python scripts/setup.py
+docker-compose up -d
+pip install -e ".[dev]"
+python scripts/init_db.py     # cần M1 done
+
+# Dev
+bash scripts/start_dev.sh
+
+# Test
+pytest tests/unit/             # fast
+pytest                          # all
+pytest --cov=pio_lab           # với coverage
+
+# Lint
+ruff check pio_lab/
+mypy pio_lab/
+
+# Backup (Phase 1 workaround cho Portable Export)
+bash scripts/backup.sh
+```
+
+## 🆘 Khi stuck
+
+1. Re-read `CODEX_HANDOFF.md` section "Common Pitfalls" (Section 11)
+2. Check `docs/PROVIDER_API_REFERENCE.md` cho provider issues
+3. Note vào `PROGRESS.md` section "Blockers"
+4. Tiếp tục milestone khác nếu có thể (independent)
+
+---
+
+**Mục tiêu cuối cùng:** Chạy được tất cả 10 scenarios trong `docs/EXAMPLES.md`. Đó là Definition of Done cho Phase 1 MVP.

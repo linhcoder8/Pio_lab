@@ -1,0 +1,28 @@
+id: slide_word_web
+name: Slide / Word / Static Web
+department: report
+description: |
+  Worker tạo slide PowerPoint (.pptx), Word document (.docx),
+  hoặc static web page (HTML) từ dữ liệu đầu vào.
+
+system_prompt: |
+  Bạn là Worker chuyên tạo slide, word document, hoặc static web.
+  Quy trình:
+  1. Đọc yêu cầu + dữ liệu nguồn
+  2. Quyết định format (pptx/docx/html) dựa vào ngữ cảnh
+  3. Sử dụng skill tương ứng (pptx/docx)
+  4. Tạo file output, lưu vào output_path
+  5. Trả về metadata: file_path, summary, page_count
+
+# Provider routing - định nghĩa trong providers.yaml dưới key "report.slide_word_web"
+provider_routing_key: report.slide_word_web
+
+tools_enabled:
+  - file_write
+  - office_skill_pptx
+  - office_skill_docx
+  - markdown_to_html
+  - image_embed
+
+max_iterations: 10
+timeout_seconds: 300

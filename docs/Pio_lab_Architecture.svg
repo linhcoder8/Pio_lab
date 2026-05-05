@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1620" font-family="Segoe UI, system-ui, sans-serif">
+  <!-- Background -->
+  <rect width="1200" height="1620" fill="#0d1117"/>
+
+  <!-- Title -->
+  <text x="600" y="50" text-anchor="middle" font-size="32" font-weight="800" fill="#58a6ff">Pio_lab Architecture v3</text>
+  <text x="600" y="78" text-anchor="middle" font-size="14" fill="#7d8590">Personal AI Company · Hybrid AI · 24/7 Runtime · MVP Phase 1 Scope</text>
+
+  <!-- Legend -->
+  <g transform="translate(380, 100)">
+    <rect x="0" y="0" width="14" height="14" fill="#3fb950" rx="2"/>
+    <text x="22" y="12" font-size="12" fill="#a5b4c8">Phase 1 MVP (full)</text>
+    <rect x="160" y="0" width="14" height="14" fill="#7d8590" rx="2"/>
+    <text x="182" y="12" font-size="12" fill="#a5b4c8">Skipped (Phase 2+)</text>
+    <rect x="320" y="0" width="14" height="14" fill="#e3b341" rx="2"/>
+    <text x="342" y="12" font-size="12" fill="#a5b4c8">Internal cycle (highlighted)</text>
+  </g>
+
+  <!-- LAYER 0 - Management Console -->
+  <g transform="translate(100, 150)">
+    <rect width="1000" height="80" rx="12" fill="#1a0a2e" stroke="#8957e5" stroke-width="2"/>
+    <text x="20" y="25" font-size="11" font-weight="700" fill="#7d8590" letter-spacing="2">L0 · MANAGEMENT CONSOLE (WEB UI)</text>
+    <text x="20" y="50" font-size="16" font-weight="800" fill="#c084fc">🖥️ Admin / Config Center</text>
+    <g transform="translate(20, 60)" font-size="11" fill="#d2a8ff">
+      <text x="0" y="12">Bot Config (SOUL.md · USER.md)</text>
+      <text x="200" y="12">Provider Mgmt (Account · Quota)</text>
+      <text x="430" y="12">Skills Toggle</text>
+      <text x="600" y="12">ORG + Add Department/Worker</text>
+      <text x="850" y="12">Task History</text>
+    </g>
+    <text x="970" y="20" font-size="10" font-weight="700" fill="#3fb950">MVP</text>
+  </g>
+
+  <!-- Bidirectional arrow -->
+  <path d="M 600 235 L 600 260 M 590 250 L 600 260 L 610 250 M 600 260 L 600 285 M 590 275 L 600 285 L 610 275" stroke="#58a6ff55" stroke-width="2" fill="none"/>
+
+  <!-- LAYER 1 - Input -->
+  <g transform="translate(100, 290)">
+    <rect width="1000" height="76" rx="12" fill="#161b22" stroke="#30363d" stroke-width="2"/>
+    <text x="20" y="22" font-size="11" font-weight="700" fill="#7d8590" letter-spacing="2">L1 · INPUT — 4 CHANNELS</text>
+    <g transform="translate(20, 35)">
+      <!-- Telegram -->
+      <rect x="0" y="0" width="220" height="30" rx="6" fill="#1f6feb22" stroke="#1f6feb"/>
+      <text x="110" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#58a6ff">📱 Telegram (Bot API)</text>
+      <!-- Web -->
+      <rect x="240" y="0" width="220" height="30" rx="6" fill="#2ea04322" stroke="#3fb950"/>
+      <text x="350" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#3fb950">🌐 Web UI (FastAPI+WS)</text>
+      <!-- Discord -->
+      <rect x="480" y="0" width="220" height="30" rx="6" fill="#8957e522" stroke="#8957e5"/>
+      <text x="590" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#c084fc">💜 Discord (Bot API)</text>
+      <!-- Zalo -->
+      <rect x="720" y="0" width="220" height="30" rx="6" fill="#2ea04322" stroke="#3fb950"/>
+      <text x="830" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#3fb950">💚 Zalo (OA API)</text>
+    </g>
+    <text x="970" y="20" font-size="10" font-weight="700" fill="#3fb950">MVP</text>
+  </g>
+
+  <path d="M 600 372 L 600 395 M 590 385 L 600 395 L 610 385" stroke="#58a6ff" stroke-width="2" fill="none"/>
+
+  <!-- LAYER 2 - OpenClaw Runtime -->
+  <g transform="translate(100, 405)">
+    <rect width="1000" height="80" rx="12" fill="#0d2137" stroke="#1f6feb" stroke-width="2"/>
+    <text x="20" y="22" font-size="11" font-weight="700" fill="#7d8590" letter-spacing="2">L2 · OPENCLAW RUNTIME</text>
+    <text x="20" y="48" font-size="18" font-weight="800" fill="#58a6ff">🦞 Personal AI OS (Lobster)</text>
+    <g transform="translate(20, 58)" font-size="11" fill="#79c0ff">
+      <text x="0" y="12">Channel Router</text>
+      <text x="130" y="12">Skill Engine</text>
+      <text x="240" y="12">Cron 24/7</text>
+      <text x="340" y="12">Auth</text>
+      <text x="400" y="12">Heartbeat</text>
+      <text x="490" y="12">50+ Integrations</text>
+    </g>
+    <text x="970" y="20" font-size="10" font-weight="700" fill="#3fb950">MVP</text>
+  </g>
+
+  <path d="M 600 491 L 600 514 M 590 504 L 600 514 L 610 504" stroke="#58a6ff" stroke-width="2" fill="none"/>
+
+  <!-- LAYER 3 - Chief of Staff (HIGHLIGHTED) -->
+  <g transform="translate(100, 524)">
+    <rect width="1000" height="160" rx="14" fill="#1a1500" stroke="#e3b341" stroke-width="3"/>
+    <rect x="780" y="-12" width="220" height="24" rx="12" fill="#e3b341"/>
+    <text x="890" y="4" text-anchor="middle" font-size="11" font-weight="800" fill="#0d1117">★ MERGED Orchestrator + CoS</text>
+    <text x="20" y="22" font-size="11" font-weight="700" fill="#7d8590" letter-spacing="2">L3 · CHIEF OF STAFF (= ORCHESTRATOR)</text>
+    <text x="20" y="50" font-size="20" font-weight="800" fill="#e3b341">👔 Chief of Staff</text>
+    <text x="20" y="70" font-size="11" fill="#a5b4c8">Single agent · Internal Plan-Dispatch-Report cycle (LangGraph StateGraph)</text>
+
+    <!-- 3 routine boxes -->
+    <g transform="translate(40, 82)">
+      <!-- PLAN -->
+      <rect x="0" y="0" width="280" height="58" rx="8" fill="#161b22" stroke="#e3b34155"/>
+      <text x="14" y="20" font-size="14" font-weight="800" fill="#e3b341">📝 PLAN</text>
+      <text x="14" y="38" font-size="10" fill="#a5b4c8">Phân tích yêu cầu · lập</text>
+      <text x="14" y="50" font-size="10" fill="#a5b4c8">kế hoạch · chia sub-task</text>
+      <!-- arrow -->
+      <text x="295" y="33" font-size="20" fill="#e3b341">→</text>
+      <!-- DISPATCH -->
+      <rect x="320" y="0" width="280" height="58" rx="8" fill="#161b22" stroke="#3fb95055"/>
+      <text x="334" y="20" font-size="14" font-weight="800" fill="#3fb950">⚡ DISPATCH</text>
+      <text x="334" y="38" font-size="10" fill="#a5b4c8">Gọi xuống Phòng ban (parallel)</text>
+      <text x="334" y="50" font-size="10" fill="#a5b4c8">qua Provider Router</text>
+      <text x="615" y="33" font-size="20" fill="#e3b341">→</text>
+      <!-- REPORT -->
+      <rect x="640" y="0" width="280" height="58" rx="8" fill="#161b22" stroke="#e3b34155"/>
+      <text x="654" y="20" font-size="14" font-weight="800" fill="#e3b341">📊 REPORT</text>
+      <text x="654" y="38" font-size="10" fill="#a5b4c8">Tổng hợp · format · gọi</text>
+      <text x="654" y="50" font-size="10" fill="#a5b4c8">Communicator</text>
+    </g>
+    <text x="500" y="155" text-anchor="middle" font-size="9" fill="#e3b34188">↺ Replan loop khi worker fail · Human Approval inline khi action nhạy cảm</text>
+    <text x="970" y="20" font-size="10" font-weight="700" fill="#3fb950">MVP</text>
+  </g>
+
+  <path d="M 600 690 L 600 712 M 590 702 L 600 712 L 610 702" stroke="#58a6ff" stroke-width="2" fill="none"/>
+
+  <!-- LAYER 4 - 5 DEPARTMENTS -->
+  <g transform="translate(100, 722)">
+    <rect width="1000" height="146" rx="12" fill="#0d1a0d" stroke="#2ea043" stroke-width="2"/>
+    <text x="20" y="22" font-size="11" font-weight="700" fill="#7d8590" letter-spacing="2">L4 · 5 DEPARTMENTS (DYNAMIC REGISTRY)</text>
+    <g transform="translate(700, 8)">
+      <rect x="0" y="0" width="120" height="20" rx="4" fill="#2ea04322" stroke="#2ea04355"/>
+      <text x="60" y="14" text-anchor="middle" font-size="10" font-weight="700" fill="#3fb950">+ Phòng ban</text>
+      <rect x="130" y="0" width="100" height="20" rx="4" fill="#2ea04322" stroke="#2ea04355"/>
+      <text x="180" y="14" text-anchor="middle" font-size="10" font-weight="700" fill="#3fb950">+ Worker</text>
+    </g>
+    <g transform="translate(20, 38)">
+      <!-- REPORT -->
+      <rect x="0" y="0" width="190" height="100" rx="8" fill="#161b22" stroke="#f78166" stroke-width="1.5"/>
+      <text x="10" y="18" font-size="12" font-weight="800" fill="#f78166">📋 REPORT</text>
+      <text x="10" y="32" font-size="9" fill="#7d8590">Làm báo cáo</text>
+      <rect x="8" y="40" width="174" height="20" rx="4" fill="#2ea04315"/>
+      <text x="14" y="54" font-size="9" fill="#79c0ff">📊 Slide / Word / Web</text>
+      <rect x="8" y="64" width="174" height="20" rx="4" fill="#2ea04315"/>
+      <text x="14" y="78" font-size="9" fill="#79c0ff">🎬 Video Report</text>
+
+      <!-- CODER -->
+      <rect x="200" y="0" width="190" height="100" rx="8" fill="#161b22" stroke="#3fb950" stroke-width="1.5"/>
+      <text x="210" y="18" font-size="12" font-weight="800" fill="#3fb950">💻 CODER</text>
+      <text x="210" y="32" font-size="9" fill="#7d8590">Phát triển ứng dụng</text>
+      <rect x="208" y="40" width="174" height="20" rx="4" fill="#2ea04315"/>
+      <text x="214" y="54" font-size="9" fill="#79c0ff">🖼️ Frontend</text>
+      <rect x="208" y="64" width="174" height="20" rx="4" fill="#2ea04315"/>
+      <text x="214" y="78" font-size="9" fill="#79c0ff">⚙️ Backend</text>
+
+      <!-- RESEARCH -->
+      <rect x="400" y="0" width="190" height="100" rx="8" fill="#161b22" stroke="#f85149" stroke-width="1.5"/>
+      <text x="410" y="18" font-size="12" font-weight="800" fill="#f85149">🔬 RESEARCH</text>
+      <text x="410" y="32" font-size="9" fill="#7d8590">Nghiên cứu</text>
+      <rect x="408" y="40" width="174" height="20" rx="4" fill="#2ea04315"/>
+      <text x="414" y="54" font-size="9" fill="#79c0ff">🔍 Optics</text>
+      <text x="414" y="80" font-size="9" font-style="italic" fill="#7d8590">(extensible)</text>
+
+      <!-- MEDIA -->
+      <rect x="600" y="0" width="190" height="100" rx="8" fill="#161b22" stroke="#c084fc" stroke-width="1.5"/>
+      <text x="610" y="18" font-size="12" font-weight="800" fill="#c084fc">🎬 MEDIA</text>
+      <text x="610" y="32" font-size="9" fill="#7d8590">Xây dựng nội dung</text>
+      <rect x="608" y="40" width="84" height="18" rx="4" fill="#2ea04315"/>
+      <text x="614" y="53" font-size="9" fill="#79c0ff">✍️ Content</text>
+      <rect x="696" y="40" width="84" height="18" rx="4" fill="#2ea04315"/>
+      <text x="702" y="53" font-size="9" fill="#79c0ff">🎨 Image</text>
+      <rect x="608" y="62" width="174" height="18" rx="4" fill="#2ea04315"/>
+      <text x="614" y="75" font-size="9" fill="#79c0ff">📹 Video Maker</text>
+
+      <!-- QA -->
+      <rect x="800" y="0" width="160" height="100" rx="8" fill="#161b22" stroke="#e3b341" stroke-width="1.5"/>
+      <text x="810" y="18" font-size="12" font-weight="800" fill="#e3b341">🛡️ QA</text>
+      <text x="810" y="32" font-size="9" fill="#7d8590">Đánh giá chất lượng</text>
+      <rect x="808" y="40" width="144" height="20" rx="4" fill="#2ea04315"/>
+      <text x="814" y="54" font-size="9" fill="#79c0ff">✓ QA Reviewer</text>
+    </g>
+    <text x="940" y="20" font-size="10" font-weight="700" fill="#3fb950">MVP·FULL</text>
+  </g>
+
+  <path d="M 600 874 L 600 896 M 590 886 L 600 896 L 610 886" stroke="#58a6ff" stroke-width="2" fill="none"/>
+
+  <!-- LAYER 5 - Knowledge Librarian -->
+  <g transform="translate(100, 906)">
+    <rect width="1000" height="70" rx="12" fill="#0d2137" stroke="#58a6ff" stroke-width="2"/>
+    <text x="20" y="22" font-size="11" font-weight="700" fill="#7d8590" letter-spacing="2">L5 · KNOWLEDGE LIBRARIAN (BACK-OFFICE)</text>
+    <text x="20" y="50" font-size="16" font-weight="800" fill="#79c0ff">📚 Archive · Index · Cross-link</text>
+    <g transform="translate(640, 32)">
+      <rect x="0" y="0" width="160" height="28" rx="6" fill="#1f6feb22" stroke="#1f6feb"/>
+      <text x="80" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#79c0ff">🐘 PostgreSQL</text>
+      <rect x="170" y="0" width="160" height="28" rx="6" fill="#1f6feb22" stroke="#1f6feb"/>
+      <text x="250" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#79c0ff">🧠 Obsidian Vault</text>
+    </g>
+    <text x="970" y="20" font-size="10" font-weight="700" fill="#3fb950">MVP·FULL</text>
+  </g>
+
+  <path d="M 600 982 L 600 1004 M 590 994 L 600 1004 L 610 994" stroke="#58a6ff" stroke-width="2" fill="none"/>
+
+  <!-- LAYER 6 - Communicator -->
+  <g transform="translate(100, 1014)">
+    <rect width="1000" height="70" rx="12" fill="#1a1500" stroke="#d29922" stroke-width="2"/>
+    <text x="20" y="22" font-size="11" font-weight="700" fill="#7d8590" letter-spacing="2">L6 · COMMUNICATOR (OUTPUT ADAPTER)</text>
+    <text x="20" y="50" font-size="16" font-weight="800" fill="#e3b341">💬 Hermes Communicator</text>
+    <g transform="translate(540, 38)">
+      <rect x="0" y="0" width="80" height="20" rx="4" fill="#d2992222" stroke="#d2992255"/>
+      <text x="40" y="14" text-anchor="middle" font-size="10" fill="#e3b341">📱 TG</text>
+      <rect x="90" y="0" width="80" height="20" rx="4" fill="#d2992222" stroke="#d2992255"/>
+      <text x="130" y="14" text-anchor="middle" font-size="10" fill="#e3b341">🌐 Web</text>
+      <rect x="180" y="0" width="80" height="20" rx="4" fill="#d2992222" stroke="#d2992255"/>
+      <text x="220" y="14" text-anchor="middle" font-size="10" fill="#e3b341">💜 Discord</text>
+      <rect x="270" y="0" width="80" height="20" rx="4" fill="#d2992222" stroke="#d2992255"/>
+      <text x="310" y="14" text-anchor="middle" font-size="10" fill="#e3b341">💚 Zalo</text>
+    </g>
+    <text x="970" y="20" font-size="10" font-weight="700" fill="#3fb950">MVP</text>
+  </g>
+
+  <!-- Cross-cutting modules section -->
+  <text x="600" y="1115" text-anchor="middle" font-size="13" font-weight="700" fill="#58a6ff" letter-spacing="2">═══ CROSS-CUTTING MODULES ═══</text>
+
+  <!-- Provider Router (full) -->
+  <g transform="translate(100, 1130)">
+    <rect width="490" height="90" rx="10" fill="#0d2137" stroke="#2ea043" stroke-width="2"/>
+    <text x="20" y="22" font-size="14" font-weight="800" fill="#3fb950">🔌 Provider Router</text>
+    <rect x="350" y="8" width="120" height="18" rx="3" fill="#2ea04322" stroke="#2ea04344"/>
+    <text x="410" y="20" text-anchor="middle" font-size="9" font-weight="700" fill="#3fb950">MVP · FULL</text>
+    <text x="20" y="42" font-size="10" fill="#a5b4c8">5 providers: Codex · Claude · Gemini · DeepSeek · Ollama (Tailscale)</text>
+    <text x="20" y="58" font-size="10" fill="#a5b4c8">Account pool · Status (Run/End/Wait) · Routing rules per agent</text>
+    <text x="20" y="74" font-size="10" fill="#a5b4c8">Token tracker · Auto-rotate khi quota exhausted</text>
+  </g>
+
+  <!-- Persistent Memory (full) -->
+  <g transform="translate(610, 1130)">
+    <rect width="490" height="90" rx="10" fill="#0d2137" stroke="#2ea043" stroke-width="2"/>
+    <text x="20" y="22" font-size="14" font-weight="800" fill="#3fb950">💾 Persistent Memory</text>
+    <rect x="350" y="8" width="120" height="18" rx="3" fill="#2ea04322" stroke="#2ea04344"/>
+    <text x="410" y="20" text-anchor="middle" font-size="9" font-weight="700" fill="#3fb950">MVP · FULL</text>
+    <text x="20" y="42" font-size="10" fill="#a5b4c8">PostgreSQL: tasks · traces · conversations · accounts</text>
+    <text x="20" y="58" font-size="10" fill="#a5b4c8">Obsidian Vault: USER.md · AGENTS.md · SOUL.md · knowledge/</text>
+    <text x="20" y="74" font-size="10" fill="#a5b4c8">Trace logging xuyên suốt (cho Distillation Phase 2+)</text>
+  </g>
+
+  <!-- Distillation (skip) -->
+  <g transform="translate(100, 1232)">
+    <rect width="320" height="90" rx="10" fill="#161b22" stroke="#7d8590" stroke-width="1.5" stroke-dasharray="6,4"/>
+    <text x="20" y="22" font-size="13" font-weight="800" fill="#7d8590">🎓 Distillation Pipeline</text>
+    <rect x="200" y="8" width="110" height="18" rx="3" fill="#7d859022" stroke="#7d859055" stroke-dasharray="3,2"/>
+    <text x="255" y="20" text-anchor="middle" font-size="9" font-weight="700" fill="#7d8590">SKIP Phase 1</text>
+    <text x="20" y="44" font-size="9" fill="#6e7681">Phase 1 chỉ LOG traces vào</text>
+    <text x="20" y="58" font-size="9" fill="#6e7681">Postgres. Phase 2+ bật trainer</text>
+    <text x="20" y="72" font-size="9" fill="#6e7681">khi đủ ~5000 traces.</text>
+  </g>
+
+  <!-- Portable Export (skip) -->
+  <g transform="translate(440, 1232)">
+    <rect width="320" height="90" rx="10" fill="#161b22" stroke="#7d8590" stroke-width="1.5" stroke-dasharray="6,4"/>
+    <text x="20" y="22" font-size="13" font-weight="800" fill="#7d8590">📦 Portable Export</text>
+    <rect x="200" y="8" width="110" height="18" rx="3" fill="#7d859022" stroke="#7d859055" stroke-dasharray="3,2"/>
+    <text x="255" y="20" text-anchor="middle" font-size="9" font-weight="700" fill="#7d8590">SKIP Phase 1</text>
+    <text x="20" y="44" font-size="9" fill="#6e7681">Workaround tạm:</text>
+    <text x="20" y="58" font-size="9" fill="#6e7681">scripts/backup.sh</text>
+    <text x="20" y="72" font-size="9" fill="#6e7681">(tar + pg_dump)</text>
+  </g>
+
+  <!-- Security Engine (skip - default rules) -->
+  <g transform="translate(780, 1232)">
+    <rect width="320" height="90" rx="10" fill="#161b22" stroke="#7d8590" stroke-width="1.5" stroke-dasharray="6,4"/>
+    <text x="20" y="22" font-size="13" font-weight="800" fill="#7d8590">🛡️ Security Engine</text>
+    <rect x="170" y="8" width="140" height="18" rx="3" fill="#7d859022" stroke="#7d859055" stroke-dasharray="3,2"/>
+    <text x="240" y="20" text-anchor="middle" font-size="9" font-weight="700" fill="#7d8590">SKIP · Default rules</text>
+    <text x="20" y="44" font-size="9" fill="#6e7681">Phase 1 dùng rules cứng từ</text>
+    <text x="20" y="58" font-size="9" fill="#6e7681">config/security_policy.yaml</text>
+    <text x="20" y="72" font-size="9" fill="#6e7681">(file/API/crypto/Docker rules).</text>
+  </g>
+
+  <!-- Bottom: MVP scope summary -->
+  <g transform="translate(100, 1340)">
+    <rect width="1000" height="240" rx="10" fill="#0d1a0d" stroke="#2ea043" stroke-width="2"/>
+    <text x="20" y="28" font-size="14" font-weight="800" fill="#3fb950">📌 MVP Phase 1 — Scope Summary</text>
+    <g transform="translate(20, 50)" font-size="11">
+      <text x="0" y="0" fill="#a5b4c8"><tspan fill="#3fb950" font-weight="700">✓</tspan> Đầy đủ 7 lớp (Layer 0-6)</text>
+      <text x="0" y="22" fill="#a5b4c8"><tspan fill="#3fb950" font-weight="700">✓</tspan> Layer 1 channels: Telegram + Web + Discord + Zalo (4 kênh)</text>
+      <text x="0" y="44" fill="#a5b4c8"><tspan fill="#3fb950" font-weight="700">✓</tspan> Layer 4: 5 phòng ban + 9 workers + Dynamic Registry</text>
+      <text x="0" y="66" fill="#a5b4c8"><tspan fill="#3fb950" font-weight="700">✓</tspan> Layer 5: PostgreSQL + Obsidian Vault</text>
+      <text x="0" y="88" fill="#a5b4c8"><tspan fill="#3fb950" font-weight="700">✓</tspan> Provider Router: 5 providers đầy đủ (Codex/Claude/Gemini/DeepSeek/Ollama)</text>
+      <text x="0" y="110" fill="#a5b4c8"><tspan fill="#3fb950" font-weight="700">✓</tspan> Persistent Memory: traces logging hoạt động sẵn</text>
+      <text x="0" y="138" fill="#a5b4c8"><tspan fill="#7d8590" font-weight="700">⊘</tspan> Distillation Pipeline: SKIP — chỉ log traces, Phase 2+ bật training</text>
+      <text x="0" y="160" fill="#a5b4c8"><tspan fill="#7d8590" font-weight="700">⊘</tspan> Portable Export: SKIP — workaround scripts/backup.sh</text>
+      <text x="0" y="182" fill="#a5b4c8"><tspan fill="#7d8590" font-weight="700">⊘</tspan> Security Engine: SKIP — dùng default rules cứng (security_policy.yaml)</text>
+      <text x="0" y="204" fill="#a5b4c8"><tspan fill="#7d8590" font-weight="700">⊘</tspan> Layer 1 channels khác: WhatsApp + iMessage (Phase 3-4)</text>
+    </g>
+  </g>
+</svg>

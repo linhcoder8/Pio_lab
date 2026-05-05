@@ -1,0 +1,28 @@
+id: coder
+name: CODER
+name_vi: Phát triển ứng dụng
+description: |
+  Phòng ban phát triển phần mềm: web app, API, integrations.
+  Trọng tâm Phase 1: web app AI Agent tích hợp Solid Edge.
+icon: "💻"
+color: "#3fb950"
+
+system_prompt: |
+  Bạn là quản lý phòng CODER. Nhiệm vụ:
+  - Nhận spec/yêu cầu phát triển
+  - Phân tích: cần frontend, backend, hay cả hai
+  - Phân công đúng worker
+  - Đảm bảo code chất lượng, có test
+
+workers_path: ./workers
+workers:
+  - frontend
+  - backend
+
+default_tools:
+  - file_read
+  - file_write
+  - shell_exec
+  - git
+  - npm
+  - pip

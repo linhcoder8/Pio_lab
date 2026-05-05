@@ -1,0 +1,47 @@
+# ====================================================================
+# Layer 4 — Department Registry
+# Danh sách phòng ban đang active. Thêm/xóa qua UI Console hoặc YAML này.
+# ====================================================================
+
+version: 1
+
+departments:
+  - id: report
+    name: REPORT
+    name_vi: Làm báo cáo
+    icon: "📋"
+    color: "#f78166"
+    enabled: true
+    config_path: ./config/departments/report/department.yaml
+
+  - id: coder
+    name: CODER
+    name_vi: Phát triển ứng dụng
+    icon: "💻"
+    color: "#3fb950"
+    enabled: true
+    config_path: ./config/departments/coder/department.yaml
+
+  - id: research
+    name: RESEARCH
+    name_vi: Nghiên cứu
+    icon: "🔬"
+    color: "#f85149"
+    enabled: true
+    config_path: ./config/departments/research/department.yaml
+
+  - id: media
+    name: MEDIA
+    name_vi: Xây dựng nội dung
+    icon: "🎬"
+    color: "#c084fc"
+    enabled: true
+    config_path: ./config/departments/media/department.yaml
+
+  - id: qa
+    name: QA
+    name_vi: Đánh giá chất lượng
+    icon: "🛡️"
+    color: "#e3b341"
+    enabled: true
+    config_path: ./config/departments/qa/department.yaml

@@ -1,0 +1,80 @@
+---
+description: Python code style và conventions cho mọi file Python trong Pio_lab
+globs:
+  - "**/*.py"
+alwaysApply: false
+---
+
+# Python Conventions — Pio_lab
+
+## Type hints
+- BẮT BUỘC type hints trên public functions/methods
+- Return type phải annotate (kể cả `-> None`)
+- Dùng `from __future__ import annotations` nếu cần forward references
+- Prefer `dict[str, Any]` over `Dict[str, Any]` (Python 3.11+)
+
+## Async
+- Mọi I/O phải async: HTTP, DB, file (nếu lib hỗ trợ)
+- KHÔNG dùng `requests` → dùng `httpx.AsyncClient`
+- KHÔNG dùng `time.sleep` → dùng `await asyncio.sleep`
+- Postgres: dùng `asyncpg` hoặc `SQLAlchemy 2.0 async`
+
+## Logging
+- KHÔNG bao giờ dùng `print()` trong code production
+- Dùng: `from pio_lab.utils.logging import logger`
+- Format: `logger.info("Loaded {count} departments", count=5)` (loguru style)
+- Levels: `debug` (verbose), `info` (normal), `warning` (recoverable), `error` (failed but caught), `exception` (uncaught)
+
+## Imports
+- Absolute paths: `from pio_lab.core.agent import BaseAgent`
+- KHÔNG relative imports (`from ..core import ...`) trừ trong cùng package nhỏ
+- Group order: stdlib → 3rd party → local
+- Một dòng trống giữa các group
+
+## Naming
+- `snake_case` cho functions, variables, modules
+- `PascalCase` cho classes
+- `SCREAMING_SNAKE_CASE` cho constants
+- Private: prefix `_` (vd `_internal_helper`)
+- Module-level "private": `__all__ = [...]` để export rõ ràng
+
+## Docstrings
+- Tiếng Việt OK cho mô tả
+- Format Google style:
+```python
+def my_function(arg1: str, arg2: int) -> dict[str, Any]:
+    """Một câu mô tả ngắn.
+
+    Args:
+        arg1: ...
+        arg2: ...
+
+    Returns:
+        Dict containing ...
+
+    Raises:
+        ValueError: when ...
+    """
+```
+
+## Error handling
+- KHÔNG bare `except:` — luôn specify exception type
+- Re-raise với context: `raise NewError(...) from e`
+- Log trước khi re-raise nếu cần debug
+
+## File length
+- Module file lý tưởng < 300 dòng. Nếu > 500 → split.
+- Class < 200 dòng. Function < 50 dòng.
+
+## Quotes
+- Double quotes preferred
+- Single quotes OK trong dict literal nếu giảm escape
+
+## Line length
+- 100 chars (đã set trong pyproject.toml ruff config)
+
+## Don't
+- KHÔNG `from module import *`
+- KHÔNG mutable default args: `def f(x=[])` → BAD
+- KHÔNG global state — dùng dependency injection
+- KHÔNG hardcode paths — dùng `pathlib.Path` + config

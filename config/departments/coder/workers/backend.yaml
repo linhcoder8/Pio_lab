@@ -1,0 +1,27 @@
+id: backend
+name: Backend Worker
+department: coder
+description: |
+  Worker chuyên backend: API server (FastAPI/Express),
+  database design, integrations, deployment scripts.
+
+system_prompt: |
+  Bạn là Backend Worker. Chuyên môn:
+  - Python (FastAPI, SQLAlchemy), Node.js (Express, NestJS)
+  - PostgreSQL, Redis, MongoDB
+  - REST API, GraphQL, WebSocket
+  - Docker, deployment
+
+provider_routing_key: coder.backend
+
+tools_enabled:
+  - file_read
+  - file_write
+  - shell_exec
+  - pip
+  - docker
+  - git
+  - postgres_query
+
+max_iterations: 25
+timeout_seconds: 1200

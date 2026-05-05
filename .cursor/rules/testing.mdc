@@ -1,0 +1,135 @@
+---
+description: Testing conventions cho Pio_lab
+globs:
+  - "tests/**/*.py"
+alwaysApply: false
+---
+
+# Testing Rules
+
+## Cấu trúc
+
+```
+tests/
+├── unit/              # Fast, no external deps
+│   ├── test_*.py      # Đặt tên match module testing
+│   └── conftest.py    # Shared fixtures
+├── integration/       # Real services (DB, API, Tailscale)
+│   ├── test_*.py
+│   └── conftest.py
+└── fixtures/          # Sample data files
+    └── *.yaml/.json
+```
+
+## Naming convention
+
+- File: `test_<module>.py` (vd `test_provider_router.py` cho `pio_lab/providers/router.py`)
+- Function: `test_<scenario>` mô tả đặc tính cụ thể
+- Class (optional): `TestClassName` cho group related tests
+
+## Pytest conventions
+
+```python
+import pytest
+from unittest.mock import AsyncMock, patch
+
+
+@pytest.mark.asyncio
+async def test_router_calls_first_provider_in_chain():
+    """Router phải thử provider đầu trong chain trước khi fallback."""
+    # Given
+    router = ProviderRouter(config_path=test_config)
+    router.load()
+
+    # When
+    with patch.object(router, "_call_provider", new=AsyncMock(return_value=mock_response)):
+        result = await router.call("test.key", messages=[...])
+
+    # Then
+    assert result["provider"] == "claude"  # provider đầu trong chain
+```
+
+## Async tests
+
+- Dùng `@pytest.mark.asyncio` (config trong `pyproject.toml::asyncio_mode = "auto"` cũng OK)
+- Mock async với `AsyncMock`, không `Mock`
+
+## Mocking LLM
+
+```python
+mock_response = {
+    "content": [{"type": "text", "text": "mocked answer"}],
+    "stop_reason": "end_turn",
+    "usage": {"input_tokens": 10, "output_tokens": 5},
+    "model": "claude-sonnet-4-6",
+    "provider": "claude",
+    "raw": None,
+}
+
+with patch("pio_lab.providers.router.ProviderRouter.call",
+           new=AsyncMock(return_value=mock_response)):
+    # Test code
+```
+
+## Fixtures
+
+```python
+# conftest.py
+@pytest.fixture
+async def db_session():
+    """Async DB session, auto rollback after test."""
+    async with async_session() as s:
+        yield s
+        await s.rollback()
+
+
+@pytest.fixture
+def sample_task():
+    return {"input": "Test request", "metadata": {}}
+```
+
+## Markers
+
+- `@pytest.mark.unit` (default — không cần mark)
+- `@pytest.mark.integration` — cần real services
+- `@pytest.mark.slow` — > 5s
+- `@pytest.mark.skip(reason="...")` — tạm skip
+- `@pytest.mark.xfail` — known failure (chưa fix)
+
+## Coverage targets
+
+| Package | Min coverage |
+|---|---|
+| `pio_lab/core/` | 80% |
+| `pio_lab/providers/` | 75% |
+| `pio_lab/layer3_chief_of_staff/` | 75% |
+| `pio_lab/layer4_departments/` | 60% |
+| `pio_lab/security/` | 90% |
+| Other layers | 60% |
+
+Run với coverage:
+```bash
+pytest --cov=pio_lab --cov-report=html
+open htmlcov/index.html
+```
+
+## Đừng
+
+- ❌ KHÔNG mock everything — integration test cần real services
+- ❌ KHÔNG test private methods (`_helper`) trực tiếp — test qua public
+- ❌ KHÔNG dùng real API key trong unit test
+- ❌ KHÔNG depend test order — mỗi test độc lập
+- ❌ KHÔNG commit fixtures với real secrets
+
+## Khi viết test cho 1 milestone
+
+1. Đọc `@CODEX_HANDOFF.md` section M{N} → acceptance criteria
+2. Mỗi acceptance criterion → ít nhất 1 test
+3. Edge case: 1-2 test thêm
+4. Error path: 1 test cho mỗi exception type
+5. Run: `pytest tests/unit/test_<milestone>.py -v`
+
+## Smoke test sau milestone done
+
+- Chạy 1 scenario từ `@docs/EXAMPLES.md` tương ứng
+- Vd M3 done → run scenario 1 (Q&A đơn giản)

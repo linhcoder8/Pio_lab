@@ -1,0 +1,26 @@
+id: report
+name: REPORT
+name_vi: Làm báo cáo
+description: |
+  Phòng ban chuyên tạo các loại báo cáo, slide, document, video báo cáo
+  từ kết quả nghiên cứu hoặc dữ liệu đã có.
+icon: "📋"
+color: "#f78166"
+
+system_prompt: |
+  Bạn là quản lý phòng REPORT. Nhiệm vụ:
+  - Nhận kết quả/dữ liệu từ Chief of Staff
+  - Phân loại loại deliverable cần tạo (slide / word / web / video)
+  - Phân công cho Worker phù hợp
+  - Đảm bảo format chuyên nghiệp, đẹp, đúng yêu cầu
+
+workers_path: ./workers
+workers:
+  - slide_word_web
+  - video_report
+
+# Default tools for this department
+default_tools:
+  - file_write
+  - markdown_render
+  - office_skill   # (xlsx, docx, pptx, pdf skills)

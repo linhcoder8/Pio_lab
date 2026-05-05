@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Pio_lab Architecture v3 · MVP Phase 1</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #0d1117;
+  color: #e6edf3;
+  padding: 28px 20px;
+  min-height: 100vh;
+}
+h1 { text-align: center; font-size: 22px; font-weight: 800; color: #58a6ff; margin-bottom: 4px; }
+.subtitle { text-align: center; font-size: 11px; color: #7d8590; margin-bottom: 8px; }
+.version { text-align: center; font-size: 10px; color: #e3b341; margin-bottom: 18px; font-weight: 700; }
+
+.legend { text-align: center; font-size: 10px; color: #7d8590; margin-bottom: 18px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.legend .item { display: inline-flex; align-items: center; gap: 4px; }
+.legend .dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+.layer-label {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  color: #7d8590; margin-bottom: 6px; padding-left: 2px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.layer-label .badge-mvp { background: #2ea04322; color: #3fb950; padding: 1px 6px; border-radius: 3px; font-size: 8px; font-weight: 700; border: 1px solid #2ea04344; }
+.layer-label .badge-skip { background: #7d859022; color: #7d8590; padding: 1px 6px; border-radius: 3px; font-size: 8px; font-weight: 700; border: 1px dashed #7d859055; }
+
+.arrow { text-align: center; font-size: 11px; color: #58a6ff55; margin: 4px 0; }
+.arrow span { font-size: 9px; color: #7d8590; }
+.layer { margin-bottom: 6px; max-width: 820px; margin-left: auto; margin-right: auto; }
+
+.console-box { background: linear-gradient(135deg, #1a0a2e, #0d1b2a); border: 1.5px solid #8957e5; border-radius: 12px; padding: 12px 14px; }
+.console-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.console-head .ic { font-size: 22px; }
+.console-head .nm { font-size: 14px; font-weight: 800; color: #c084fc; }
+.console-head .role { font-size: 9px; color: #7d8590; font-weight: 700; text-transform: uppercase; }
+.console-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.console-cell { background: #8957e510; border: 1px solid #8957e533; border-radius: 6px; padding: 6px 8px; font-size: 9px; color: #d2a8ff; text-align: center; }
+
+.channels-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.channel-cell { background: #161b22; border: 1.5px solid #30363d; border-radius: 10px; padding: 10px 6px; text-align: center; }
+.channel-cell .ic { font-size: 22px; margin-bottom: 4px; }
+.channel-cell .nm { font-size: 11px; font-weight: 800; }
+.channel-cell .ds { font-size: 8px; color: #7d8590; margin-top: 3px; }
+
+.openclaw-box { background: linear-gradient(135deg, #0d2137, #0f2a1f); border: 1.5px solid #1f6feb; border-radius: 12px; padding: 12px 16px; text-align: center; }
+.openclaw-box .badge { display: inline-block; background: #1f6feb15; border: 1px solid #1f6feb44; border-radius: 20px; padding: 2px 10px; font-size: 9px; color: #58a6ff; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 5px; }
+.openclaw-box .title { font-size: 16px; font-weight: 800; color: #58a6ff; }
+.openclaw-box .tagline { font-size: 10px; color: #7d8590; margin: 4px 0 8px; }
+.pills { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+.pill { background: #1f6feb15; border: 1px solid #1f6feb33; border-radius: 20px; padding: 2px 8px; font-size: 9px; color: #79c0ff; }
+
+.cos-wrap { background: linear-gradient(135deg, #1a1500 0%, #0d1117 50%, #1a1500 100%); border: 2px solid #e3b341; border-radius: 14px; padding: 14px; position: relative; box-shadow: 0 0 18px #e3b34122; }
+.cos-merged-badge { position: absolute; top: -10px; right: 14px; background: #e3b341; color: #0d1117; font-size: 9px; font-weight: 800; padding: 3px 10px; border-radius: 12px; letter-spacing: 0.5px; }
+.cos-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.cos-head .ic { font-size: 24px; }
+.cos-head .nm { font-size: 15px; font-weight: 800; color: #e3b341; }
+.cos-head .role { font-size: 9px; color: #7d8590; font-weight: 700; text-transform: uppercase; }
+.cos-desc { font-size: 10px; color: #a5b4c8; margin-bottom: 10px; line-height: 1.5; }
+.cos-row { display: grid; grid-template-columns: 1fr 24px 1fr 24px 1fr; gap: 6px; align-items: stretch; }
+.cos-step { background: #161b22; border: 1.5px solid #e3b34155; border-radius: 10px; padding: 9px; }
+.cos-step .ic { font-size: 18px; margin-bottom: 3px; }
+.cos-step .nm { font-size: 10px; font-weight: 800; color: #e3b341; margin-bottom: 3px; }
+.cos-step .ds { font-size: 9px; color: #a5b4c8; line-height: 1.4; }
+.cos-arrow { display: flex; align-items: center; justify-content: center; color: #e3b34188; font-size: 16px; }
+.cos-replan { text-align: center; font-size: 8px; color: #e3b34188; margin-top: 8px; border-top: 1px dashed #e3b34133; padding-top: 5px; }
+
+.dept-wrap { background: #0d1a0d; border: 1.5px solid #2ea043; border-radius: 12px; padding: 10px; }
+.dept-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.dept-head .nm { font-size: 11px; font-weight: 800; color: #3fb950; }
+.dept-head .actions { font-size: 9px; color: #3fb950; }
+.dept-head .actions .add-btn { background: #2ea04322; border: 1px solid #2ea04355; padding: 2px 8px; border-radius: 6px; margin-left: 4px; font-weight: 700; }
+.dept-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.dept-card { background: #161b22; border: 1.5px solid #2ea04344; border-radius: 8px; padding: 8px 6px; }
+.dept-card .dh { display: flex; align-items: center; gap: 4px; margin-bottom: 5px; }
+.dept-card .dh .ic { font-size: 14px; }
+.dept-card .dh .nm { font-size: 10px; font-weight: 800; color: #3fb950; }
+.dept-card .desc { font-size: 8px; color: #7d8590; margin-bottom: 5px; line-height: 1.3; }
+.dept-card .worker { background: #2ea04315; border: 1px solid #2ea04330; border-radius: 4px; padding: 2px 5px; font-size: 8px; color: #79c0ff; margin-bottom: 2px; }
+
+.lib-box { background: linear-gradient(135deg, #0d2137, #1a0a2e); border: 1.5px solid #58a6ff; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
+.lib-box .ic { font-size: 24px; }
+.lib-box .info { flex: 1; }
+.lib-box .nm { font-size: 12px; font-weight: 800; color: #79c0ff; margin-bottom: 3px; }
+.lib-box .ds { font-size: 9px; color: #a5b4c8; }
+.lib-tags { display: flex; gap: 6px; }
+.lib-tag { background: #1f6feb20; border: 1px solid #1f6feb55; border-radius: 5px; padding: 4px 8px; font-size: 9px; color: #79c0ff; font-weight: 700; }
+
+.comm-box { background: linear-gradient(135deg, #1a1500, #0d1a0d); border: 1.5px solid #d29922; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
+.comm-box .ic { font-size: 22px; }
+.comm-box .info { flex: 1; }
+.comm-box .nm { font-size: 12px; font-weight: 800; color: #e3b341; }
+.comm-box .ds { font-size: 9px; color: #a5b4c8; margin-top: 2px; }
+.comm-channels { display: flex; gap: 4px; }
+.comm-ch { background: #d2992222; border: 1px solid #d2992255; border-radius: 4px; padding: 3px 6px; font-size: 9px; color: #e3b341; }
+
+.cross-section { margin-top: 16px; max-width: 820px; margin-left: auto; margin-right: auto; }
+.cross-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #58a6ff; margin-bottom: 8px; text-align: center; }
+.cross-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.cross-item { border-radius: 10px; padding: 10px 12px; display: flex; align-items: flex-start; gap: 10px; }
+.cross-item.mvp { background: #0d2137; border: 1.5px solid #2ea043; }
+.cross-item.skip { background: #161b22; border: 1.5px dashed #7d859055; opacity: 0.65; }
+.cross-item .cic { font-size: 20px; }
+.cross-item .cinfo { flex: 1; }
+.cross-item .cn { font-size: 11px; font-weight: 800; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
+.cross-item.mvp .cn { color: #3fb950; }
+.cross-item.skip .cn { color: #7d8590; }
+.cross-item .cd { font-size: 9px; color: #a5b4c8; line-height: 1.4; }
+.cross-item.skip .cd { color: #6e7681; }
+.tag-mvp { background: #2ea04322; color: #3fb950; padding: 1px 5px; border-radius: 3px; font-size: 8px; font-weight: 700; border: 1px solid #2ea04344; }
+.tag-skip { background: #7d859022; color: #7d8590; padding: 1px 5px; border-radius: 3px; font-size: 8px; font-weight: 700; border: 1px dashed #7d859055; }
+
+.memory-box { background: #0d2137; border: 1.5px dashed #1f6feb55; border-radius: 10px; padding: 10px 14px; display: flex; align-items: flex-start; gap: 10px; }
+.memory-box .m-icon { font-size: 20px; margin-top: 2px; }
+.m-title { font-size: 11px; font-weight: 700; color: #79c0ff; margin-bottom: 3px; }
+.m-desc { font-size: 9px; color: #7d8590; margin-bottom: 5px; }
+.m-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.m-tag { font-size: 8px; color: #58a6ff; background: #1f6feb15; border: 1px solid #1f6feb33; border-radius: 4px; padding: 1px 6px; }
+
+.scope-summary { margin-top: 20px; max-width: 820px; margin-left: auto; margin-right: auto; background: linear-gradient(135deg, #0d1a0d, #1a1a00); border: 1.5px solid #2ea043; border-radius: 10px; padding: 12px 16px; font-size: 10px; color: #a5b4c8; }
+.scope-summary .h { font-size: 11px; font-weight: 800; color: #3fb950; margin-bottom: 6px; }
+.scope-summary ul { list-style: none; padding: 0; margin: 0; }
+.scope-summary li { padding: 2px 0; }
+.scope-summary .check { color: #3fb950; }
+.scope-summary .skip-mark { color: #7d8590; }
+</style>
+</head>
+<body>
+
+<h1>🦞 Pio_lab Architecture</h1>
+<p class="subtitle">Personal AI Company · Hybrid AI · 24/7 Runtime</p>
+<div class="version">v3 · MVP Phase 1 Scope</div>
+
+<div class="legend">
+  <span class="item"><span class="dot" style="background:#3fb950"></span> Phase 1 MVP (full)</span>
+  <span class="item"><span class="dot" style="background:#7d8590"></span> Skipped (Phase 2+)</span>
+  <span class="item"><span class="dot" style="background:#e3b341"></span> Internal cycle</span>
+</div>
+
+<div class="layer">
+  <div class="layer-label"><span>🖥️ Layer 0 · Management Console (Web UI)</span><span class="badge-mvp">MVP</span></div>
+  <div class="console-box">
+    <div class="console-head">
+      <div class="ic">🖥️</div>
+      <div>
+        <div class="nm">Management Console</div>
+        <div class="role">Admin UI · Config Center</div>
+      </div>
+    </div>
+    <div class="console-grid">
+      <div class="console-cell">🤖 Bot Config<br><span style="opacity:0.6;font-size:8px">SOUL.md · USER.md</span></div>
+      <div class="console-cell">🔌 Provider Mgmt<br><span style="opacity:0.6;font-size:8px">Account · Model · Quota</span></div>
+      <div class="console-cell">⚙️ Skills Toggle<br><span style="opacity:0.6;font-size:8px">RAG · Browser · Code…</span></div>
+      <div class="console-cell">🏢 ORG + Add Dept/Worker<br><span style="opacity:0.6;font-size:8px">Dynamic Registry</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<div class="layer">
+  <div class="layer-label"><span>👤 Layer 1 · Input (4 Channels)</span><span class="badge-mvp">MVP</span></div>
+  <div class="channels-row">
+    <div class="channel-cell" style="border-color:#1f6feb">
+      <div class="ic">📱</div>
+      <div class="nm" style="color:#58a6ff">Telegram</div>
+      <div class="ds">Bot API · ⭐ dễ</div>
+    </div>
+    <div class="channel-cell" style="border-color:#3fb950">
+      <div class="ic">🌐</div>
+      <div class="nm" style="color:#3fb950">Web UI</div>
+      <div class="ds">FastAPI + chat · ⭐ dễ</div>
+    </div>
+    <div class="channel-cell" style="border-color:#8957e5">
+      <div class="ic">💜</div>
+      <div class="nm" style="color:#c084fc">Discord</div>
+      <div class="ds">Bot API · ⭐⭐</div>
+    </div>
+    <div class="channel-cell" style="border-color:#3fb950">
+      <div class="ic">💚</div>
+      <div class="nm" style="color:#3fb950">Zalo</div>
+      <div class="ds">OA API · ⭐⭐⭐</div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼ <span>yêu cầu tự nhiên</span></div>
+
+<div class="layer">
+  <div class="layer-label"><span>🌐 Layer 2 · OpenClaw Runtime Platform</span><span class="badge-mvp">MVP</span></div>
+  <div class="openclaw-box">
+    <div class="badge">🦞 OPENCLAW · OPEN SOURCE RUNTIME (codename: Lobster)</div>
+    <div class="title">Personal AI OS</div>
+    <div class="tagline">Channel Router · Skill Engine · Cron 24/7 · Auth · Heartbeat</div>
+    <div class="pills">
+      <span class="pill">📱 Channel Router</span>
+      <span class="pill">🔌 50+ Integrations</span>
+      <span class="pill">⚙️ Skill Engine</span>
+      <span class="pill">🔒 Local & Private</span>
+      <span class="pill">⏰ Cron / Heartbeat</span>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼ <span>route task</span></div>
+
+<div class="layer">
+  <div class="layer-label"><span>👔 Layer 3 · Chief of Staff (Orchestrator) — GỘP</span><span class="badge-mvp">MVP</span></div>
+  <div class="cos-wrap">
+    <div class="cos-merged-badge">★ MERGED Orchestrator + CoS</div>
+    <div class="cos-head">
+      <div class="ic">👔</div>
+      <div>
+        <div class="nm">Chief of Staff</div>
+        <div class="role">Single agent · Internal Plan-Dispatch-Report cycle</div>
+      </div>
+    </div>
+    <div class="cos-desc">Nhận yêu cầu từ CEO Sếp Linh → phân tích → lập kế hoạch → dispatch xuống phòng ban → tổng hợp kết quả → trả CEO. Không còn "double brain".</div>
+    <div class="cos-row">
+      <div class="cos-step">
+        <div class="ic">📝</div>
+        <div class="nm">PLAN</div>
+        <div class="ds">Phân tích yêu cầu · lập kế hoạch chi tiết · chia sub-task</div>
+      </div>
+      <div class="cos-arrow">→</div>
+      <div class="cos-step" style="border-color:#3fb95055">
+        <div class="ic">⚡</div>
+        <div class="nm" style="color:#3fb950">DISPATCH</div>
+        <div class="ds">Gọi xuống Phòng ban (parallel/sequential) · gọi Provider Router</div>
+      </div>
+      <div class="cos-arrow">→</div>
+      <div class="cos-step">
+        <div class="ic">📊</div>
+        <div class="nm">REPORT</div>
+        <div class="ds">Tổng hợp output · format · gọi Communicator để trả CEO</div>
+      </div>
+    </div>
+    <div class="cos-replan">↺ Replan loop khi worker fail · Human Approval inline khi action nhạy cảm</div>
+  </div>
+</div>
+
+<div class="arrow">▼ <span>dispatch sub-tasks</span></div>
+
+<div class="layer">
+  <div class="layer-label"><span>🏢 Layer 4 · 5 Phòng ban (Dynamic Registry)</span><span class="badge-mvp">MVP · FULL</span></div>
+  <div class="dept-wrap">
+    <div class="dept-head">
+      <div class="nm">🏢 Departments — extensible runtime</div>
+      <div class="actions">
+        <span class="add-btn">+ Phòng ban</span>
+        <span class="add-btn">+ Worker</span>
+      </div>
+    </div>
+    <div class="dept-grid">
+      <div class="dept-card" style="border-color:#f78166">
+        <div class="dh"><span class="ic">📋</span><span class="nm" style="color:#f78166">REPORT</span></div>
+        <div class="desc">Làm báo cáo</div>
+        <div class="worker">📊 Slide/Word/Web</div>
+        <div class="worker">🎬 Video Report</div>
+      </div>
+      <div class="dept-card">
+        <div class="dh"><span class="ic">💻</span><span class="nm">CODER</span></div>
+        <div class="desc">Phát triển ứng dụng</div>
+        <div class="worker">🖼️ Frontend</div>
+        <div class="worker">⚙️ Backend</div>
+      </div>
+      <div class="dept-card" style="border-color:#f85149">
+        <div class="dh"><span class="ic">🔬</span><span class="nm" style="color:#f85149">RESEARCH</span></div>
+        <div class="desc">Nghiên cứu</div>
+        <div class="worker">🔍 Optics</div>
+      </div>
+      <div class="dept-card" style="border-color:#8957e5">
+        <div class="dh"><span class="ic">🎬</span><span class="nm" style="color:#c084fc">MEDIA</span></div>
+        <div class="desc">Xây dựng nội dung</div>
+        <div class="worker">✍️ Content</div>
+        <div class="worker">🎨 Image Maker</div>
+        <div class="worker">📹 Video Maker</div>
+      </div>
+      <div class="dept-card" style="border-color:#d29922">
+        <div class="dh"><span class="ic">🛡️</span><span class="nm" style="color:#e3b341">QA</span></div>
+        <div class="desc">Đánh giá chất lượng</div>
+        <div class="worker">✓ QA Reviewer</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼ <span>kết quả + QA pass</span></div>
+
+<div class="layer">
+  <div class="layer-label"><span>📚 Layer 5 · Knowledge Librarian (back-office)</span><span class="badge-mvp">MVP · FULL</span></div>
+  <div class="lib-box">
+    <div class="ic">📚</div>
+    <div class="info">
+      <div class="nm">Knowledge Librarian</div>
+      <div class="ds">Lưu output vào storage · Index hóa · Liên kết vào second brain</div>
+    </div>
+    <div class="lib-tags">
+      <span class="lib-tag">🐘 PostgreSQL</span>
+      <span class="lib-tag">🧠 Obsidian Vault</span>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼ <span>output đã lưu</span></div>
+
+<div class="layer">
+  <div class="layer-label"><span>💬 Layer 6 · Communicator (Output Adapter)</span><span class="badge-mvp">MVP</span></div>
+  <div class="comm-box">
+    <div class="ic">💬</div>
+    <div class="info">
+      <div class="nm">Hermes Communicator</div>
+      <div class="ds">Format theo từng kênh user dùng (markdown/blocks/plain) → trả về</div>
+    </div>
+    <div class="comm-channels">
+      <span class="comm-ch">📱 TG</span>
+      <span class="comm-ch">🌐 Web</span>
+      <span class="comm-ch">💜 DC</span>
+      <span class="comm-ch">💚 Zalo</span>
+    </div>
+  </div>
+</div>
+
+<div class="cross-section">
+  <div class="cross-title">═══ Cross-cutting Modules ═══</div>
+
+  <div class="cross-grid">
+    <div class="cross-item mvp">
+      <div class="cic">🔌</div>
+      <div class="cinfo">
+        <div class="cn">Provider Router <span class="tag-mvp">MVP · FULL</span></div>
+        <div class="cd">Codex · Claude · Gemini · DeepSeek · Ollama (qua Tailscale). Account pool, status tracker (Running/End/Waiting), routing rules per agent, token tracker, auto-rotate khi hết quota.</div>
+      </div>
+    </div>
+
+    <div class="cross-item mvp">
+      <div class="cic">💾</div>
+      <div class="cinfo">
+        <div class="cn">Persistent Memory <span class="tag-mvp">MVP · FULL</span></div>
+        <div class="cd">PostgreSQL (structured archive: task history, traces, conversation log) + Obsidian Vault (second brain: wiki, USER.md, AGENTS.md, SOUL.md, skill library).</div>
+      </div>
+    </div>
+
+    <div class="cross-item skip">
+      <div class="cic">🎓</div>
+      <div class="cinfo">
+        <div class="cn">Distillation Pipeline <span class="tag-skip">SKIP Phase 1</span></div>
+        <div class="cd"><b>Skip:</b> chưa fine-tune Ollama. <b>Lý do:</b> chưa đủ traces (~vài nghìn) để train hiệu quả. <b>Vẫn LOG traces vào Postgres</b> sẵn → Phase 2 bật module training là dùng được ngay.</div>
+      </div>
+    </div>
+
+    <div class="cross-item skip">
+      <div class="cic">📦</div>
+      <div class="cinfo">
+        <div class="cn">Portable Export <span class="tag-skip">SKIP Phase 1</span></div>
+        <div class="cd"><b>Skip:</b> chưa làm 1-click export. <b>Lý do:</b> Phase 1 chạy 1 máy, chưa cần copy. <b>Workaround tạm:</b> tar folder + pg_dump + copy .env. Phase 2-3 build module chuyên dụng.</div>
+      </div>
+    </div>
+
+    <div class="cross-item skip" style="grid-column: span 2;">
+      <div class="cic">🛡️</div>
+      <div class="cinfo">
+        <div class="cn">Security Policy Engine <span class="tag-skip">SKIP Phase 1 · dùng Default Rules cứng</span></div>
+        <div class="cd"><b>Skip:</b> chưa làm Engine có UI cho user CRUD rules động. <b>Phase 1 dùng default rules cứng</b> trong file <code style="background:#161b22;padding:1px 4px;border-radius:3px">security_policy.yaml</code>: file system (chỉ project folder), API keys (.env), crypto wallet (cấm), Docker (no --privileged). Đủ an toàn cho 1 user. Phase 2-3 upgrade lên Engine khi mở rộng cho team.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="height: 12px;"></div>
+
+<div class="layer">
+  <div class="memory-box">
+    <div class="m-icon">🧠</div>
+    <div>
+      <div class="m-title">Persistent Memory · xuyên suốt 7 lớp</div>
+      <div class="m-desc">Tất cả layer đọc/ghi vào memory · Knowledge tích lũy 24/7</div>
+      <div class="m-tags">
+        <span class="m-tag">USER.md</span>
+        <span class="m-tag">AGENTS.md</span>
+        <span class="m-tag">SOUL.md</span>
+        <span class="m-tag">task history</span>
+        <span class="m-tag">traces (cho Distillation sau)</span>
+        <span class="m-tag">skill library</span>
+        <span class="m-tag">second brain</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="scope-summary">
+  <div class="h">📌 MVP Phase 1 — Scope Summary</div>
+  <ul>
+    <li><span class="check">✓</span> <b>Layer 0-6:</b> đầy đủ 7 lớp</li>
+    <li><span class="check">✓</span> <b>Layer 1 channels:</b> Telegram + Web + Discord + Zalo (4 kênh)</li>
+    <li><span class="check">✓</span> <b>Layer 4 phòng ban:</b> đầy đủ 5 phòng ban + tất cả workers + Dynamic Registry</li>
+    <li><span class="check">✓</span> <b>Layer 5 storage:</b> đầy đủ PostgreSQL + Obsidian Vault</li>
+    <li><span class="check">✓</span> <b>Provider Router:</b> đầy đủ Codex + Claude + Gemini + DeepSeek + Ollama (Tailscale)</li>
+    <li><span class="check">✓</span> <b>Persistent Memory:</b> đầy đủ</li>
+    <li><span class="skip-mark">⊘</span> <b>Distillation Pipeline:</b> SKIP — chỉ log traces sẵn, Phase 2+ bật training</li>
+    <li><span class="skip-mark">⊘</span> <b>Portable Export:</b> SKIP — workaround tạm bằng tar+pg_dump</li>
+    <li><span class="skip-mark">⊘</span> <b>Security Engine:</b> SKIP — dùng default rules cứng (security_policy.yaml)</li>
+  </ul>
+</div>
+
+</body>
+</html>

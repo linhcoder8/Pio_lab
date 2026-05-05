@@ -1,0 +1,88 @@
+---
+description: Bảo vệ kiến trúc 7 lớp — không cho phép tùy ý sửa đổi structure
+alwaysApply: true
+---
+
+# Architecture Lock — KHÔNG được sửa structure
+
+## 7 Layers — TÊN VÀ THỨ TỰ KHÔNG ĐỔI
+
+```
+Layer 0 — pio_lab/layer0_console/    Management Console (Web UI)
+Layer 1 — pio_lab/layer1_input/      Channel Adapters
+Layer 2 — pio_lab/layer2_runtime/    OpenClaw Runtime
+Layer 3 — pio_lab/layer3_chief_of_staff/  Orchestrator
+Layer 4 — pio_lab/layer4_departments/     5 phòng ban
+Layer 5 — pio_lab/layer5_librarian/       Knowledge Librarian
+Layer 6 — pio_lab/layer6_communicator/    Output Adapter
+```
+
+## Cross-cutting modules — KHÔNG đổi tên/vị trí
+
+```
+pio_lab/providers/        Provider Router (5 providers)
+pio_lab/memory/           PostgreSQL + Obsidian
+pio_lab/security/         Policy enforcer
+pio_lab/distillation/     Trace logger (Phase 1)
+pio_lab/export/           Portable export (Phase 2+)
+pio_lab/utils/            Shared utilities
+pio_lab/core/             Abstractions (Agent, Department, Worker, Registry)
+```
+
+## RULES
+
+### Tuyệt đối KHÔNG
+- ❌ Đổi tên layer (vd `layer3_chief_of_staff` → `layer3_orchestrator`)
+- ❌ Gộp/tách layer (vd merge L5 + L6)
+- ❌ Đổi vị trí cross-cutting module (vd move `providers/` vào `core/`)
+- ❌ Sửa public interface của `BaseAgent`, `Department`, `Worker` mà không update tất cả subclasses
+- ❌ Tạo `pio_lab/<new_layer>/` mới
+- ❌ Bỏ qua dependency: vd L5 KHÔNG gọi trực tiếp L1 (phải qua L3)
+
+### Được phép
+- ✅ Thêm file mới TRONG layer existing (vd thêm helper trong `layer3_chief_of_staff/`)
+- ✅ Refactor INSIDE 1 module
+- ✅ Thêm department mới qua `config/departments/` (Dynamic Registry)
+- ✅ Thêm provider adapter mới (vd `xai_adapter.py`)
+- ✅ Update `pio_lab/utils/` thêm helpers
+- ✅ Thêm test files
+
+### Khi cần thay đổi architecture
+1. Note vào `PROGRESS.md` → "Questions for Sếp Linh"
+2. Đề xuất cụ thể với reasoning
+3. **CHỜ approve** trước khi sửa
+4. Update `CODEX_HANDOFF.md` + `STRUCTURE.md` + `Pio_lab_Architecture.svg`
+
+## Dependency direction (CRITICAL)
+
+```
+L0 ←→ L1, L4 (Console quản lý L1 + L4)
+L1 → L2 (channel feed vào runtime)
+L2 → L3 (runtime call orchestrator)
+L3 → L4 (orchestrator dispatch dept)
+L4 → L5 (worker save knowledge)
+L5 → L6 (librarian → communicator)
+L6 → L1 (communicator gửi qua channel)
+
+Cross-cutting:
+- providers: gọi BỞI L3, L4 (không gọi xuôi xuống)
+- memory: được DÙNG bởi L5, optionally bởi L3 (cho retrieval)
+- security: enforced AT L1 (input), L4 (action), L6 (output)
+```
+
+KHÔNG cho phép circular dependency.
+
+## Naming consistency
+
+- `BaseAgent` (singular) — base class
+- `Department` (singular) — concrete
+- `Worker` (singular) — concrete
+- `*_router` cho routing logic (vd `channel_router`, `provider_router`)
+- `*_adapter` cho external integration (vd `telegram_adapter`)
+- `*_store` cho data persistence (vd `postgres_store`)
+
+## Khi nghi ngờ
+
+- Đọc `@docs/7_layers.md` để check layer responsibility
+- Đọc `@CODEX_HANDOFF.md` section "Architecture"
+- Note câu hỏi vào `PROGRESS.md` thay vì tự sửa

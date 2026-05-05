@@ -1,0 +1,75 @@
+# ====================================================================
+# Pio_lab — Default Security Policy (Phase 1 - hardcoded rules)
+# Phase 2+ sẽ upgrade thành Policy Engine với UI CRUD
+# ====================================================================
+
+version: 1
+mode: default_hardcoded   # Phase 1 only - chưa có UI editor
+
+# --- File system access ---
+file_system:
+  allowed_paths:
+    - "{PROJECT_ROOT}"          # Chỉ thư mục project
+    - "{PROJECT_ROOT}/vault"    # Obsidian vault
+    - "{PROJECT_ROOT}/tmp"      # Tạm
+  forbidden_paths:
+    - "C:/Users/*/Documents"
+    - "C:/Users/*/Desktop"
+    - "C:/Users/*/Downloads"
+    - "C:/Users/*/AppData"
+    - "C:/Windows/System32"
+    - "C:/Program Files"
+    - "/etc"
+    - "/var"
+    - "~/.ssh"
+    - "~/.gnupg"
+  forbidden_extensions:
+    - ".key"
+    - ".pem"
+    - ".crt"
+
+# --- API keys & credentials ---
+api_keys:
+  rules:
+    - "Luôn lưu vào .env, KHÔNG hardcode trong source"
+    - "KHÔNG hiển thị API key/token trong chat output"
+    - "KHÔNG commit .env lên Git"
+    - "Mask key khi log (chỉ hiện 4 ký tự cuối)"
+  detect_patterns:
+    - "sk-[a-zA-Z0-9]{20,}"        # OpenAI/Anthropic
+    - "AIza[a-zA-Z0-9_-]{35}"      # Google
+    - "xoxb-[a-zA-Z0-9-]+"          # Slack
+
+# --- Crypto wallet ---
+crypto_wallet:
+  rules:
+    - "TUYỆT ĐỐI cấm truy cập, đọc, hoặc thao tác với ví crypto"
+    - "Cấm copy clipboard chứa seed phrase / private key"
+    - "Cấm truy cập browser profile/cookie/extension liên quan crypto"
+  forbidden_keywords:
+    - "seed phrase"
+    - "private key"
+    - "wallet.dat"
+    - "metamask"
+    - "phantom wallet"
+
+# --- Docker ---
+docker:
+  rules:
+    - "KHÔNG chạy container với --privileged"
+    - "Chỉ mount đúng thư mục cần thiết (config + workspace)"
+    - "KHÔNG expose port < 30000 (giới hạn an toàn)"
+    - "KHÔNG mount nguyên ổ đĩa (C:/, D:/)"
+
+# --- Action approval (Human-in-the-loop) ---
+require_human_approval:
+  - send_email
+  - send_message_external_user
+  - delete_file
+  - upload_to_youtube
+  - upload_to_tiktok
+  - upload_to_social
+  - spend_money
+  - install_package
+  - run_shell_with_sudo
+  - modify_system_config

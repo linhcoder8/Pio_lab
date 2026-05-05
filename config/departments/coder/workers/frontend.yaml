@@ -1,0 +1,26 @@
+id: frontend
+name: Frontend Worker
+department: coder
+description: |
+  Worker chuyên frontend: React/Vue/Next.js, HTML/CSS/JS,
+  UI/UX implementation, integration với backend API.
+
+system_prompt: |
+  Bạn là Frontend Worker. Chuyên môn:
+  - React, Vue, Next.js, Tailwind, shadcn/ui
+  - Responsive design, accessibility
+  - State management (Redux/Zustand/Pinia)
+  - API integration (fetch, axios, swr)
+
+provider_routing_key: coder.frontend
+
+tools_enabled:
+  - file_read
+  - file_write
+  - shell_exec
+  - npm
+  - browser_test
+  - git
+
+max_iterations: 20
+timeout_seconds: 900

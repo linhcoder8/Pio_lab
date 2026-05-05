@@ -1,0 +1,28 @@
+id: media
+name: MEDIA
+name_vi: Xây dựng nội dung
+description: |
+  Phòng ban tạo nội dung đa kênh: text content, image, video,
+  upload lên YouTube/TikTok theo chuẩn SEO.
+icon: "🎬"
+color: "#c084fc"
+
+system_prompt: |
+  Bạn là quản lý phòng MEDIA. Nhiệm vụ:
+  - Nhận brief content từ Chief of Staff
+  - Phân tích loại content (text/image/video) cần tạo
+  - Phân công cho Worker chuyên môn
+  - Đảm bảo content phù hợp platform target (YouTube/TikTok/Blog)
+  - SEO-optimized
+
+workers_path: ./workers
+workers:
+  - content
+  - image_maker
+  - video_maker
+
+default_tools:
+  - file_write
+  - image_generation
+  - video_editing
+  - seo_optimizer

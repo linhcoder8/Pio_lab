@@ -1,0 +1,79 @@
+# ====================================================================
+# Pio_lab — Main Application Config
+# ====================================================================
+
+version: 1
+
+app:
+  name: Pio_lab
+  owner: Sếp Linh
+  language_default: vi
+  timezone: Asia/Ho_Chi_Minh
+
+# --- Layer 2: OpenClaw Runtime ---
+openclaw:
+  codename: lobster
+  cron:
+    enabled: true
+    heartbeat_seconds: 30
+  skill_engine:
+    auto_install: false   # Phase 1: manual install
+    registry_path: ./vault/skills
+
+# --- Layer 1: Channels enabled ---
+channels:
+  enabled:
+    - telegram
+    - web
+    - discord
+    - zalo
+  # disabled (Phase 2+): whatsapp, imessage
+
+# --- Layer 3: Chief of Staff ---
+chief_of_staff:
+  fast_path_enabled: true       # Q&A đơn giản skip cognitive cycle
+  fast_path_max_tokens: 200
+  replan_max_attempts: 3
+  human_approval_required_for:
+    - destructive_action
+    - external_communication
+    - financial_transaction
+
+# --- Layer 4: Department registry ---
+departments:
+  registry_path: ./config/departments
+  hot_reload: true              # Thêm phòng ban runtime không cần restart
+
+# --- Layer 5: Knowledge Librarian ---
+librarian:
+  postgres_enabled: true
+  obsidian_enabled: true
+  obsidian_vault_path: ./vault
+  auto_index: true
+
+# --- Cross-cutting: Memory ---
+memory:
+  trace_logging:
+    enabled: true              # Phase 1: log để dùng cho Distillation Phase 2
+    redact_sensitive: true
+
+# --- Cross-cutting: Distillation (Phase 1: collect only) ---
+distillation:
+  collect_traces: true         # Active in Phase 1
+  training_enabled: false      # SKIP Phase 1
+  min_traces_before_training: 5000
+
+# --- Cross-cutting: Portable Export (SKIP Phase 1) ---
+export:
+  enabled: false               # SKIP Phase 1, dùng manual scripts/backup.sh
+
+# --- Cross-cutting: Security ---
+security:
+  policy_path: ./config/security_policy.yaml
+  mode: default_hardcoded      # Phase 1: rules cứng, không UI
+
+# --- Logging ---
+logging:
+  level: INFO
+  format: json                 # JSON cho production, text cho dev
+  retention_days: 30

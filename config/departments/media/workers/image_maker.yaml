@@ -1,0 +1,24 @@
+id: image_maker
+name: Image Maker
+department: media
+description: |
+  Worker tạo hình ảnh: thumbnail YouTube, banner blog,
+  illustration, infographic.
+
+system_prompt: |
+  Bạn là Image Maker. Chuyên môn:
+  - Sinh hình ảnh từ prompt (DALL-E, Imagen, SD)
+  - Edit ảnh (background remove, resize, watermark)
+  - Tạo thumbnail YouTube tối ưu CTR
+  - Infographic từ data
+
+provider_routing_key: media.image_maker
+
+tools_enabled:
+  - image_generation
+  - image_edit
+  - file_write
+  - thumbnail_optimizer
+
+max_iterations: 8
+timeout_seconds: 300

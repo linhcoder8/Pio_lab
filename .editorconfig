@@ -1,0 +1,30 @@
+# EditorConfig is awesome: https://EditorConfig.org
+# Đảm bảo cross-editor consistency (VSCode, Cursor, Vim, PyCharm…)
+
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{js,jsx,ts,tsx,json,html,css,vue,svelte}]
+indent_size = 2
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false   # markdown 2-space trailing = line break
+
+[Makefile]
+indent_style = tab
+
+[*.{sh,bash}]
+indent_size = 2
+
+[*.bat]
+end_of_line = crlf

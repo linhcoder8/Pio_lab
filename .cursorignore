@@ -1,0 +1,87 @@
+# Pio_lab — files Cursor không cần index
+# Mục đích: tiết kiệm token, tăng tốc indexing, tránh noise
+
+# === Obsidian internal ===
+vault/.obsidian/
+vault/.trash/
+
+# === Generated content ===
+vault/tasks/**/*.md     # task history Cursor không cần đọc
+vault/knowledge/_attachments/
+
+# === Logs & traces ===
+*.log
+logs/
+traces/
+backups/
+
+# === Python ===
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# === Virtual environments ===
+venv/
+env/
+.venv/
+.env/
+
+# === Database ===
+*.db
+*.sqlite
+*.sqlite3
+postgres_data/
+ollama_data/
+
+# === Large assets — skip để khỏi token waste ===
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.mov
+*.zip
+*.tar.gz
+*.docx
+*.pdf
+*.pptx
+*.xlsx
+
+# === Whitelist quan trọng ===
+!Pio_lab_Architecture.png
+!docs/Pio_lab_Architecture.png
+!docs/Pio_lab_Architecture.svg
+!Whitebook Pio_lab.docx
+
+# === Frontend build ===
+node_modules/
+pio_lab/layer0_console/web/dist/
+pio_lab/layer0_console/web/.next/
+pio_lab/layer0_console/web/.vite/
+
+# === IDE / OS ===
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+~$*
+
+# === Secrets ===
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*credentials*.json
+
+# === Git ===
+.git/

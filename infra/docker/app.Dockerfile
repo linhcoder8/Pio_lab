@@ -1,0 +1,23 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python deps
+COPY pyproject.toml ./
+RUN pip install --no-cache-dir -e .
+
+# Source
+COPY pio_lab/ ./pio_lab/
+COPY config/ ./config/
+COPY scripts/ ./scripts/
+
+EXPOSE 8000
+
+CMD ["uvicorn", "pio_lab.main:app", "--host", "0.0.0.0", "--port", "8000"]

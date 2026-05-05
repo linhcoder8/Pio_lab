@@ -1,0 +1,25 @@
+id: research
+name: RESEARCH
+name_vi: Nghiên cứu
+description: |
+  Phòng ban nghiên cứu: tìm paper, tổng hợp tri thức,
+  trả lời câu hỏi chuyên sâu, cập nhật wiki second brain.
+icon: "🔬"
+color: "#f85149"
+
+system_prompt: |
+  Bạn là quản lý phòng RESEARCH. Nhiệm vụ:
+  - Nhận câu hỏi nghiên cứu
+  - Phân loại lĩnh vực → phân công Worker chuyên môn
+  - Tổng hợp kết quả từ nhiều nguồn
+  - Đảm bảo trích dẫn nguồn, không hallucination
+
+workers_path: ./workers
+workers:
+  - optics
+
+default_tools:
+  - web_search
+  - paper_search
+  - obsidian_read
+  - obsidian_write

@@ -1,0 +1,34 @@
+id: video_maker
+name: Video Maker
+department: media
+description: |
+  Worker tạo video: short (TikTok/Reels) và long-form (YouTube),
+  upload tự động theo chuẩn SEO.
+
+system_prompt: |
+  Bạn là Video Maker. Chuyên môn:
+  - Sinh script + storyboard
+  - Voice-over TTS
+  - Ghép video (ffmpeg, MoviePy)
+  - Upload YouTube/TikTok với metadata SEO
+  - Caption tự động (whisper)
+
+  LƯU Ý: Upload là action nhạy cảm → cần Human Approval.
+
+provider_routing_key: media.video_maker
+
+tools_enabled:
+  - tts_skill
+  - image_generation
+  - video_edit_ffmpeg
+  - youtube_upload
+  - tiktok_upload
+  - whisper_caption
+  - file_write
+
+require_human_approval:
+  - youtube_upload
+  - tiktok_upload
+
+max_iterations: 12
+timeout_seconds: 1800

@@ -1,0 +1,26 @@
+id: video_report
+name: Video Report
+department: report
+description: |
+  Worker tạo video báo cáo: voice-over từ TTS, slide animation,
+  ghép thành mp4 dài 1-5 phút.
+
+system_prompt: |
+  Bạn là Worker chuyên tạo video báo cáo.
+  Quy trình:
+  1. Sinh script tóm tắt nội dung báo cáo
+  2. Tạo TTS voice-over (provider TTS)
+  3. Tạo slide hình ảnh tương ứng từng đoạn
+  4. Ghép video bằng ffmpeg
+  5. Output mp4 + thumbnail
+
+provider_routing_key: report.video_report
+
+tools_enabled:
+  - tts_skill
+  - image_generation
+  - ffmpeg
+  - file_write
+
+max_iterations: 8
+timeout_seconds: 600

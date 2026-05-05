@@ -1,0 +1,156 @@
+---
+description: Security policy enforcement — luôn áp dụng default rules
+alwaysApply: true
+---
+
+# Security Rules — BẮT BUỘC
+
+> Phase 1 dùng **default rules cứng** từ `@config/security_policy.yaml`.
+> KHÔNG bypass dù vì bất cứ lý do gì.
+
+## API Keys & Secrets
+
+### KHÔNG BAO GIỜ
+
+- ❌ Hardcode API key trong source code
+- ❌ Print API key ra terminal/log
+- ❌ Return API key trong response cho user
+- ❌ Commit `.env` lên Git
+- ❌ Log full key — chỉ log 4 ký tự cuối: `sk-...abc1`
+
+### LUÔN
+
+- ✅ Đọc qua `os.environ[KEY_NAME]`
+- ✅ Validate key tồn tại lúc startup, fail fast nếu missing
+- ✅ Mask trong output: `enforcer.mask_secrets_in_output(text)`
+- ✅ `.env.example` chứa placeholder, không value thật
+
+```python
+# ✅ GOOD
+import os
+from pio_lab.security.enforcer import enforcer
+
+api_key = os.environ.get("ANTHROPIC_API_KEY")
+if not api_key:
+    raise RuntimeError("ANTHROPIC_API_KEY not set in .env")
+
+# Trước khi return text về user:
+safe_text = enforcer.mask_secrets_in_output(raw_text)
+```
+
+## File System Access
+
+### Allowed paths
+- Project root (`{PROJECT_ROOT}`)
+- `vault/` (Obsidian vault)
+- `tmp/` (temporary)
+- Output paths user explicitly request
+
+### Forbidden paths
+- `C:/Users/*/Documents`, `Desktop`, `Downloads`, `AppData`
+- `C:/Windows/System32`, `Program Files`
+- `/etc`, `/var`, `~/.ssh`, `~/.gnupg`
+- File extensions: `.key`, `.pem`, `.crt`
+
+### LUÔN check trước khi open
+
+```python
+from pathlib import Path
+from pio_lab.security.enforcer import enforcer
+
+def safe_open(path: Path, mode: str = "r"):
+    if not enforcer.check_file_access(path):
+        raise PermissionError(f"File access denied: {path}")
+    return open(path, mode)
+```
+
+## Crypto Wallet — TUYỆT ĐỐI CẤM
+
+- ❌ KHÔNG đọc/ghi/copy seed phrase, private key
+- ❌ KHÔNG truy cập `wallet.dat`, MetaMask extension data
+- ❌ KHÔNG copy clipboard chứa pattern crypto
+
+### Detection patterns (block nếu match)
+
+- "seed phrase", "private key", "mnemonic", "wallet.dat"
+- 12/24-word patterns nhìn giống seed
+- Hex strings 64+ chars (private key dài)
+
+```python
+# Trước khi process text user-provided:
+if not enforcer.check_crypto_keywords(user_input):
+    raise SecurityError("Input contains forbidden crypto-related content")
+```
+
+## Docker
+
+- ❌ KHÔNG `docker run --privileged`
+- ❌ KHÔNG mount nguyên ổ đĩa: `-v C:/:/host` BAD
+- ❌ KHÔNG `--network host` cho untrusted containers
+- ✅ Mount cụ thể: `-v ./config:/app/config:ro`
+- ✅ Read-only mounts khi có thể
+
+## Sensitive Actions — Cần Human Approval
+
+Các action này **PHẢI trigger Human Approval gate** trong Chief of Staff:
+
+```yaml
+require_human_approval:
+  - send_email
+  - send_message_external_user
+  - delete_file
+  - upload_to_youtube
+  - upload_to_tiktok
+  - upload_to_social
+  - spend_money
+  - install_package
+  - run_shell_with_sudo
+  - modify_system_config
+```
+
+Code pattern:
+```python
+if enforcer.requires_approval(action_name):
+    approval = await ask_human_approval(state, action_name, params)
+    if not approval.approved:
+        return {"status": "rejected", "reason": approval.reason}
+```
+
+## Logging Sensitive Data
+
+```python
+# ❌ BAD
+logger.info("API call with key: {key}", key=full_api_key)
+
+# ✅ GOOD
+logger.info("API call with key: ...{tail}", tail=full_api_key[-4:])
+```
+
+## Network
+
+- HTTPS only cho external calls (trừ localhost/Tailscale)
+- Validate SSL cert (httpx default OK)
+- Timeout BẮT BUỘC trên mọi external call (default 30s)
+
+## Khi gặp data nghi ngờ
+
+Nếu user input chứa pattern nghi ngờ (crypto, system path…):
+1. Block + return user error message rõ ràng
+2. Log warning với context
+3. KHÔNG silent ignore
+
+## Audit log
+
+Mọi sensitive action ghi vào `traces` table:
+- action_type
+- approved_by_user (bool)
+- timestamp
+- input_summary (masked)
+- result
+
+## Khi update security_policy.yaml
+
+- Sếp Linh phê duyệt
+- Update `config/security_policy.yaml`
+- Restart app để load policy mới (Phase 1 chưa hot-reload)
+- Phase 2+ sẽ build Policy Engine với UI

@@ -1,0 +1,95 @@
+name: Architecture Lock Check
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  check-structure:
+    name: Verify 7-layer structure intact
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify required directories exist
+        run: |
+          set -e
+          REQUIRED_DIRS=(
+            "pio_lab/core"
+            "pio_lab/layer0_console"
+            "pio_lab/layer1_input"
+            "pio_lab/layer2_runtime"
+            "pio_lab/layer3_chief_of_staff"
+            "pio_lab/layer4_departments"
+            "pio_lab/layer5_librarian"
+            "pio_lab/layer6_communicator"
+            "pio_lab/providers"
+            "pio_lab/memory"
+            "pio_lab/security"
+            "pio_lab/utils"
+            "config/departments"
+            "vault"
+          )
+          for dir in "${REQUIRED_DIRS[@]}"; do
+            if [ ! -d "$dir" ]; then
+              echo "❌ Missing required directory: $dir"
+              echo "Architecture lock violated. See @.cursor/rules/architecture-lock.mdc"
+              exit 1
+            fi
+          done
+          echo "✓ All 7 layers + cross-cutting modules present"
+
+      - name: Verify config files
+        run: |
+          set -e
+          REQUIRED_FILES=(
+            "config/pio_lab.yaml"
+            "config/providers.yaml"
+            "config/security_policy.yaml"
+            "config/departments/_registry.yaml"
+            ".cursorrules"
+            "CODEX_HANDOFF.md"
+            "PROGRESS.md"
+            "STRUCTURE.md"
+          )
+          for file in "${REQUIRED_FILES[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing required file: $file"
+              exit 1
+            fi
+          done
+          echo "✓ All required config + doc files present"
+
+      - name: Check no SDK calls in worker code
+        run: |
+          # Worker/dept code KHÔNG được gọi SDK trực tiếp — phải qua ProviderRouter
+          set +e
+          # Search for direct SDK imports trong layer4
+          VIOLATIONS=$(grep -r "from anthropic import\|from openai import\|import google.generativeai\|from ollama import" \
+                       pio_lab/layer4_departments/ 2>/dev/null | \
+                       grep -v "providers/adapters/")
+
+          if [ -n "$VIOLATIONS" ]; then
+            echo "❌ Direct SDK calls found in layer4_departments:"
+            echo "$VIOLATIONS"
+            echo ""
+            echo "Workers PHẢI call qua ProviderRouter."
+            echo "Xem @.cursor/rules/provider-routing.mdc"
+            exit 1
+          fi
+          echo "✓ No direct SDK calls in worker code"
+
+      - name: Verify departments có config + code
+        run: |
+          set -e
+          for dept in report coder research media qa; do
+            if [ ! -f "config/departments/$dept/department.yaml" ]; then
+              echo "❌ Missing config/departments/$dept/department.yaml"
+              exit 1
+            fi
+            if [ ! -f "pio_lab/layer4_departments/$dept/department.py" ]; then
+              echo "❌ Missing pio_lab/layer4_departments/$dept/department.py"
+              exit 1
+            fi
+          done
+          echo "✓ All 5 departments có config + code"

@@ -1,0 +1,26 @@
+id: qa
+name: QA
+name_vi: Đánh giá chất lượng
+description: |
+  Phòng ban kiểm tra chất lượng output trước khi trả CEO.
+  Verify: đúng yêu cầu, không hallucination, format đẹp.
+icon: "🛡️"
+color: "#e3b341"
+
+system_prompt: |
+  Bạn là quản lý phòng QA. Nhiệm vụ:
+  - Nhận output từ phòng ban khác
+  - Đối chiếu với yêu cầu ban đầu của CEO
+  - Check tính chính xác, hoàn chỉnh, format
+  - Phát hiện hallucination, lỗi logic
+  - Trả về: PASS / NEEDS_FIX (kèm feedback)
+
+workers_path: ./workers
+workers:
+  - qa_reviewer
+
+default_tools:
+  - file_read
+  - diff_check
+  - fact_check
+  - format_validator

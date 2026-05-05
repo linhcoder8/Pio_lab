@@ -1,0 +1,117 @@
+---
+description: Mọi LLM call PHẢI đi qua ProviderRouter — không call SDK trực tiếp
+globs:
+  - "pio_lab/layer3_chief_of_staff/**/*.py"
+  - "pio_lab/layer4_departments/**/*.py"
+  - "pio_lab/layer5_librarian/**/*.py"
+alwaysApply: false
+---
+
+# Provider Routing Rule
+
+## Rule cốt lõi
+
+**Mọi LLM call trong Pio_lab PHẢI đi qua `pio_lab.providers.router.ProviderRouter`.**
+
+## Wrong vs Right
+
+### ❌ WRONG — Call SDK trực tiếp
+
+```python
+# KHÔNG được làm thế này trong worker/dept code
+from anthropic import AsyncAnthropic
+client = AsyncAnthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+response = await client.messages.create(model="claude-sonnet-4-6", ...)
+```
+
+```python
+# KHÔNG được làm
+from openai import AsyncOpenAI
+client = AsyncOpenAI()
+response = await client.chat.completions.create(...)
+```
+
+### ✅ RIGHT — Qua ProviderRouter
+
+```python
+from pio_lab.providers.router import get_router  # singleton accessor
+
+async def my_worker_method(self, task):
+    router = get_router()
+    response = await router.call(
+        routing_key=self.config.provider_routing_key,  # vd "coder.frontend"
+        messages=[{"role": "user", "content": task["input"]}],
+        tools=tools,
+        system=self.config.system_prompt,
+        max_tokens=4096,
+    )
+    # response đã được normalize — schema giống nhau bất kể provider
+    return response
+```
+
+## Tại sao
+
+1. **Hybrid AI:** swap provider không phá worker (vd test với Ollama local trước, deploy với Claude)
+2. **Account rotation:** auto chuyển khi quota hết
+3. **Trace logging:** mỗi call tự động log vào Postgres (cho Distillation Phase 2+)
+4. **Token tracking:** đếm cost per worker
+5. **Fallback chain:** provider chính fail → tự thử provider tiếp theo
+6. **Centralized error handling:** retry, timeout, masking secrets
+
+## Routing key naming
+
+`{department_id}.{worker_id}` hoặc special:
+
+| Routing key | Dùng ở đâu |
+|---|---|
+| `chief_of_staff` | Layer 3 — top-level decisions |
+| `coder.frontend` | layer4_departments/coder/workers/frontend_worker.py |
+| `coder.backend` | ... |
+| `research.optics` | ... |
+| `media.content` | ... |
+| `media.image_maker` | ... |
+| `media.video_maker` | ... |
+| `report.slide_word_web` | ... |
+| `report.video_report` | ... |
+| `qa.qa_reviewer` | ... |
+| `{dept_id}._manager` | Department dispatch logic (chọn worker nào) |
+
+Mỗi routing key PHẢI có entry tương ứng trong `config/providers.yaml` mục `routing_rules`.
+
+Nếu không có → fallback `default_chain` (có thể không phù hợp).
+
+## Adding new worker
+
+Khi tạo worker mới:
+
+1. Định nghĩa `provider_routing_key` trong worker YAML config
+2. Update `config/providers.yaml` thêm rule:
+```yaml
+routing_rules:
+  my_dept.my_worker:
+    - { provider: claude, model: claude-sonnet-4-6 }
+    - { provider: codex, model: gpt-4o }
+    - { provider: ollama, model: qwen2.5-coder:32b }
+```
+
+3. Provider chain phải có ít nhất 2 entry (cho fallback)
+
+## Error handling
+
+```python
+from pio_lab.providers.errors import ProviderUnavailableError
+
+try:
+    response = await router.call(routing_key, messages)
+except ProviderUnavailableError as e:
+    # Tất cả providers trong chain đều fail
+    logger.error("All providers failed for {key}: {err}", key=routing_key, err=e)
+    # Fallback strategy: cached response, default reply, hoặc raise lên
+    raise
+```
+
+## Reference docs
+
+- `@docs/PROVIDER_API_REFERENCE.md` — sample requests/responses 5 providers
+- `@config/providers.yaml` — current routing rules
+- `@pio_lab/providers/router.py` — implementation
