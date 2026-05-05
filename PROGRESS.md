@@ -4,7 +4,7 @@
 
 **Phase hiện tại:** MVP Phase 1
 **Bắt đầu:** 2026-05-04
-**Last update:** 2026-05-05 (M5 Security Enforcer unit verified)
+**Last update:** 2026-05-05 (M6 Web Channel verified)
 
 ---
 
@@ -18,8 +18,8 @@
 | M3 | Provider Router (Claude) | ✅ Done | Real provider smoke deferred by owner |
 | M4 | Provider Router · 4 còn lại | ✅ Done | Adapter infrastructure unit verified; real providers deferred |
 | M5 | Security Enforcer | ✅ Done | Unit verified |
-| M6 | Channel · Web (test bed) | ⏸️ Pending | Next |
-| M7 | Chief of Staff (LangGraph) | ⏸️ Pending | |
+| M6 | Channel · Web (test bed) | ✅ Done | Verified via FastAPI server; bash unavailable in current Windows shell |
+| M7 | Chief of Staff (LangGraph) | ⏸️ Pending | Next |
 | M8 | Department + Worker base | ⏸️ Pending | |
 | M9 | 5 Departments cụ thể | ⏸️ Pending | |
 | M10 | Knowledge Librarian | ⏸️ Pending | |
@@ -30,6 +30,16 @@
 ---
 
 ## 📝 Detailed log
+
+### 2026-05-05 — Milestone M6 done
+- ✅ FastAPI app boots from `pio_lab.main:app`.
+- ✅ `/` serves authenticated web chat and `/login` handles password auth with signed cookie session.
+- ✅ `POST /api/chat` returns dummy echo response and masks secrets before response.
+- ✅ `WS /ws/chat` returns dummy echo response for authenticated sessions.
+- 📝 Decisions: M6 uses a minimal server-rendered HTML chat page; M7 will replace echo with Chief of Staff routing.
+- 🧪 Tests: 6 pass for `tests/unit/test_web_channel.py`; full `pytest -v` = 41 pass, 1 skip; full `ruff check pio_lab tests` pass.
+- ⚠️ Environment note: `bash scripts/start_dev.sh` could not be executed because Windows `bash.exe` fails with `The system cannot find the file specified`; server was verified with `python -m uvicorn pio_lab.main:app --host 127.0.0.1 --port 8000`.
+- ⏭️ Next: M7
 
 ### 2026-05-05 — Milestone M5 done
 - ✅ File access outside project root is rejected.
@@ -96,13 +106,13 @@
 
 ## 🚀 Current milestone
 
-**Đang ở:** M6 — next
+**Đang ở:** M7 — next
 
-### Acceptance criteria — M6
-- [ ] `bash scripts/start_dev.sh` start server
-- [ ] `http://localhost:8000/` thấy chat page
-- [ ] Gõ message → echo response (M7 sẽ wire CoS)
-- [ ] Auth với `WEB_UI_ADMIN_PASSWORD`
+### Acceptance criteria — M7
+- [ ] `chief_of_staff.run({"input":"hello"})` complete graph execution
+- [ ] Trace logged vào Postgres
+- [ ] Replan loop trigger được khi QA fail (test bằng mock)
+- [ ] Human approval pause graph + resume sau approve
 
 ---
 
@@ -156,6 +166,11 @@
   - Trade-off: Callers must choose the appropriate style for their control flow.
   - Có thể revisit?: yes
 
+**D6 (2026-05-05):** M6 uses signed cookie auth without server-side session storage.
+  - Lý do: Single-user web test bed only needs lightweight auth before M7 wires runtime state.
+  - Trade-off: No session revocation list yet; `/logout` clears the browser cookie.
+  - Có thể revisit?: yes
+
 ---
 
 ## ⚠️ Blockers
@@ -178,9 +193,9 @@
 
 ## 📈 Metrics
 
-- **Tổng số commits:** 5 milestone commits after M5 commit
+- **Tổng số commits:** 6 milestone commits after M6 commit
 - **Test coverage hiện tại:** Not measured yet; focused unit suite passing
-- **Lines of code (impl):** M0-M5 implementation added
+- **Lines of code (impl):** M0-M6 implementation added
 - **API keys configured:** TBD (Sếp Linh điền `.env`)
 
 ---
