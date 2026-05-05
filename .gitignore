@@ -68,6 +68,7 @@ temp/
 
 # Test
 .pytest_cache/
+pytest-cache-files-*/
 .coverage
 htmlcov/
 .tox/

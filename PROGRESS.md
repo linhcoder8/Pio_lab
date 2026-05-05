@@ -4,7 +4,7 @@
 
 **Phase hiện tại:** MVP Phase 1
 **Bắt đầu:** 2026-05-04
-**Last update:** 2026-05-04 (initial — chưa có milestone nào start)
+**Last update:** 2026-05-05 (M0 prerequisites + M1 unit verified)
 
 ---
 
@@ -12,9 +12,9 @@
 
 | # | Milestone | Status | Note |
 |---|---|---|---|
-| M0 | Foundation | ⏸️ Pending | Codex bắt đầu từ đây |
-| M1 | Memory · Postgres | ⏸️ Pending | |
-| M2 | Memory · Obsidian | ⏸️ Pending | |
+| M0 | Foundation | ✅ Done | Completed as prerequisite for M1 |
+| M1 | Memory · Postgres | ✅ Done | Unit verified; Docker daemon unavailable for live smoke |
+| M2 | Memory · Obsidian | ⏸️ Pending | Next |
 | M3 | Provider Router (Claude) | ⏸️ Pending | |
 | M4 | Provider Router · 4 còn lại | ⏸️ Pending | |
 | M5 | Security Enforcer | ⏸️ Pending | |
@@ -31,6 +31,23 @@
 
 ## 📝 Detailed log
 
+### 2026-05-05 — Milestone M1 done
+- ✅ `pio_lab/memory/postgres/models.py` has tasks, traces, conversations, providers, provider_accounts.
+- ✅ `pio_lab/memory/postgres/database.py` provides async engine/session helpers.
+- ✅ `TraceLogger.log()` inserts trace rows through an async session.
+- ✅ `scripts/init_db.py` creates tables from SQLAlchemy metadata when Postgres is reachable.
+- 📝 Decisions: Completed missing M0 utility foundation first because `pio_lab/` package was absent and M1 depends on M0.
+- 🧪 Tests: 9 pass for focused M0/M1 suite; 11 pass for current `tests/unit/`; ruff pass.
+- ⚠️ Live DB smoke: `docker-compose up -d postgres` failed because Docker daemon is not running.
+- ⏭️ Next: M2
+
+### 2026-05-05 — Milestone M0 done
+- ✅ `pio_lab/utils/config_loader.py` implemented with cached YAML loading.
+- ✅ `pio_lab/utils/env.py` implemented with Pydantic Settings and async Postgres DSN.
+- ✅ `pio_lab/utils/logging.py` implemented for text and JSON loguru setup.
+- 🧪 Tests: covered by `tests/unit/test_config_loader.py`.
+- ⏭️ Next: M1
+
 ### 2026-05-04 — Folder Structure Complete
 - ✅ 162 files, 60 folders đã tạo
 - ✅ Skeleton classes + interfaces cho tất cả 7 layers
@@ -44,14 +61,12 @@
 
 ## 🚀 Current milestone
 
-**Đang ở:** M0 — chưa start
+**Đang ở:** M2 — next
 
-### Acceptance criteria — M0
-- [ ] `pio_lab/utils/config_loader.py` implemented + cached
-- [ ] `pio_lab/utils/env.py` Pydantic Settings
-- [ ] `pio_lab/utils/logging.py` flesh out
-- [ ] `tests/unit/test_config_loader.py` pass
-- [ ] Commit: `M0: Foundation`
+### Acceptance criteria — M2
+- [ ] `vault.write/read/list_notes` work
+- [ ] `SoulMd/UserMd/AgentsMd` get/set work
+- [ ] `AgentsMd.regenerate(registry)` build từ registry
 
 ---
 
@@ -80,7 +95,10 @@
 >   - Trade-off: ...
 >   - Có thể revisit?: yes/no
 
-(Hiện tại chưa có decision nào)
+**D1 (2026-05-05):** Complete minimal M0 utility foundation before M1.
+  - Lý do: `pio_lab/` package was absent on disk, while M1 depends on M0 utilities.
+  - Trade-off: M1 commit includes M0 prerequisite files instead of being purely Postgres-only.
+  - Có thể revisit?: no
 
 ---
 
@@ -95,17 +113,20 @@
 >   - Mô tả: ...
 >   - Cần gì để unblock: ...
 
-(Hiện tại không có blocker)
+**B1 (2026-05-05):** Docker daemon unavailable for live Postgres smoke.
+  - Tại milestone: M1
+  - Mô tả: `docker-compose up -d postgres` cannot connect to `npipe:////./pipe/docker_engine`.
+  - Cần gì để unblock: Start Docker Desktop / Docker daemon, then rerun `docker-compose up -d postgres` and `python scripts/init_db.py`.
 
 ---
 
 ## 📈 Metrics
 
-- **Tổng số commits:** 0
-- **Test coverage hiện tại:** 0%
-- **Lines of code (impl):** 0 (chỉ skeleton)
+- **Tổng số commits:** 1 milestone commit after M1 commit
+- **Test coverage hiện tại:** Not measured yet; focused unit suite passing
+- **Lines of code (impl):** M0/M1 implementation added
 - **API keys configured:** TBD (Sếp Linh điền `.env`)
 
 ---
 
-*Cập nhật cuối: 2026-05-04 bởi Claude (handoff prep). Codex sẽ tiếp tục cập nhật từ session đầu tiên.*
+*Cập nhật cuối: 2026-05-05 bởi Codex.*
