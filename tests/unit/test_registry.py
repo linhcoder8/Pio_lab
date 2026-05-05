@@ -1,7 +1,5 @@
 """Test Department Registry loading + hot reload."""
 
-import pytest
-
 
 def test_registry_loads_5_departments():
     """Phase 1: registry phải load đủ 5 phòng ban."""

@@ -4,7 +4,7 @@
 
 **Phase hiện tại:** MVP Phase 1
 **Bắt đầu:** 2026-05-04
-**Last update:** 2026-05-05 (M4 Provider adapters unit verified; real providers deferred)
+**Last update:** 2026-05-05 (M5 Security Enforcer unit verified)
 
 ---
 
@@ -17,8 +17,8 @@
 | M2 | Memory · Obsidian | ✅ Done | Unit verified |
 | M3 | Provider Router (Claude) | ✅ Done | Real provider smoke deferred by owner |
 | M4 | Provider Router · 4 còn lại | ✅ Done | Adapter infrastructure unit verified; real providers deferred |
-| M5 | Security Enforcer | ⏸️ Pending | Next |
-| M6 | Channel · Web (test bed) | ⏸️ Pending | |
+| M5 | Security Enforcer | ✅ Done | Unit verified |
+| M6 | Channel · Web (test bed) | ⏸️ Pending | Next |
 | M7 | Chief of Staff (LangGraph) | ⏸️ Pending | |
 | M8 | Department + Worker base | ⏸️ Pending | |
 | M9 | 5 Departments cụ thể | ⏸️ Pending | |
@@ -30,6 +30,15 @@
 ---
 
 ## 📝 Detailed log
+
+### 2026-05-05 — Milestone M5 done
+- ✅ File access outside project root is rejected.
+- ✅ API key-like output is masked before user/log exposure.
+- ✅ Sensitive action `send_email` triggers approval.
+- ✅ Crypto-wallet phrase `seed phrase` is blocked.
+- 📝 Decisions: Security enforcer returns booleans for check methods and provides `require_*` helpers that raise `SecurityError`.
+- 🧪 Tests: 6 pass for `tests/unit/test_security.py`; full `pytest -v` = 35 pass, 1 skip; full `ruff check pio_lab tests` pass.
+- ⏭️ Next: M6
 
 ### 2026-05-05 — Milestone M4 done
 - ✅ Codex/OpenAI, Gemini, DeepSeek, and Ollama adapter infrastructure implemented.
@@ -87,13 +96,13 @@
 
 ## 🚀 Current milestone
 
-**Đang ở:** M5 — next
+**Đang ở:** M6 — next
 
-### Acceptance criteria — M5
-- [ ] Open file ngoài project → reject
-- [ ] Text "sk-abc..." → masked
-- [ ] Action "send_email" → trigger approval flag
-- [ ] Text "seed phrase" → blocked
+### Acceptance criteria — M6
+- [ ] `bash scripts/start_dev.sh` start server
+- [ ] `http://localhost:8000/` thấy chat page
+- [ ] Gõ message → echo response (M7 sẽ wire CoS)
+- [ ] Auth với `WEB_UI_ADMIN_PASSWORD`
 
 ---
 
@@ -142,6 +151,11 @@
   - Trade-off: M3/M4 acceptance is unit/mock verified now; real provider validation remains a later integration task.
   - Có thể revisit?: yes
 
+**D5 (2026-05-05):** Security checks expose both boolean and raising APIs.
+  - Lý do: Boolean checks fit hooks, while `require_*` helpers make hard-block paths explicit.
+  - Trade-off: Callers must choose the appropriate style for their control flow.
+  - Có thể revisit?: yes
+
 ---
 
 ## ⚠️ Blockers
@@ -164,9 +178,9 @@
 
 ## 📈 Metrics
 
-- **Tổng số commits:** 4 milestone commits after M4 commit
+- **Tổng số commits:** 5 milestone commits after M5 commit
 - **Test coverage hiện tại:** Not measured yet; focused unit suite passing
-- **Lines of code (impl):** M0-M4 implementation added
+- **Lines of code (impl):** M0-M5 implementation added
 - **API keys configured:** TBD (Sếp Linh điền `.env`)
 
 ---
