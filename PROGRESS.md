@@ -4,7 +4,7 @@
 
 **Phase hiện tại:** MVP Phase 1
 **Bắt đầu:** 2026-05-04
-**Last update:** 2026-05-05 (M2 Obsidian memory unit verified)
+**Last update:** 2026-05-05 (M3 Provider Router code complete; real smoke blocked)
 
 ---
 
@@ -15,7 +15,7 @@
 | M0 | Foundation | ✅ Done | Completed as prerequisite for M1 |
 | M1 | Memory · Postgres | ✅ Done | Unit verified; Docker daemon unavailable for live smoke |
 | M2 | Memory · Obsidian | ✅ Done | Unit verified |
-| M3 | Provider Router (Claude) | ⏸️ Pending | Next |
+| M3 | Provider Router (Claude) | ⚠️ Blocked | Code/unit verified; needs real Claude + Postgres smoke |
 | M4 | Provider Router · 4 còn lại | ⏸️ Pending | |
 | M5 | Security Enforcer | ⏸️ Pending | |
 | M6 | Channel · Web (test bed) | ⏸️ Pending | |
@@ -30,6 +30,16 @@
 ---
 
 ## 📝 Detailed log
+
+### 2026-05-05 — Milestone M3 implementation complete, real smoke pending
+- ✅ Router loads `config/providers.yaml` and resolves routing chains.
+- ✅ Account pool registers Claude accounts and selects env-backed `claude_main` in tests.
+- ✅ `router.call("research.optics", ...)` returns normalized Claude response with mocked adapter.
+- ✅ Trace logging path verified with real `TraceLogger` and SQLAlchemy session.
+- 📝 Decisions: M3 initializes only Claude adapter; Codex/Gemini/DeepSeek/Ollama targets are skipped until M4.
+- 🧪 Tests: 6 pass for `tests/unit/test_provider_router.py`; 23 pass for `tests/unit/`; full `pytest -v` = 25 pass, 1 skip; ruff pass.
+- ⚠️ Scenario 1 real smoke skipped because `ANTHROPIC_API_KEY` is not set and live Postgres still needs Docker daemon.
+- ⏭️ Next: finish M3 real smoke before M4
 
 ### 2026-05-05 — Milestone M2 done
 - ✅ `Vault.write/read/list_notes` implemented with safe relative paths under the vault root.
@@ -69,13 +79,14 @@
 
 ## 🚀 Current milestone
 
-**Đang ở:** M3 — next
+**Đang ở:** M3 — real smoke pending
 
 ### Acceptance criteria — M3
-- [ ] Router load `config/providers.yaml` thành công
-- [ ] Account pool có ít nhất 1 Claude account
-- [ ] `await router.call("research.optics", [{"role":"user","content":"hi"}])` → response
-- [ ] Trace logged vào Postgres
+- [x] Router load `config/providers.yaml` thành công
+- [x] Account pool có ít nhất 1 Claude account
+- [x] `await router.call("research.optics", [{"role":"user","content":"hi"}])` → response (unit mocked)
+- [x] Trace logging path verified via SQLAlchemy session
+- [ ] Real Claude + Postgres scenario 1 smoke
 
 ---
 
@@ -114,6 +125,11 @@
   - Trade-off: No async file abstraction yet; can be revisited if vault writes become high-volume.
   - Có thể revisit?: yes
 
+**D3 (2026-05-05):** M3 implements only Claude adapter and skips other configured providers.
+  - Lý do: Handoff explicitly says Codex/Gemini/DeepSeek/Ollama are M4 scope.
+  - Trade-off: Routing keys without Claude raise `ProviderUnavailableError` until M4.
+  - Có thể revisit?: no
+
 ---
 
 ## ⚠️ Blockers
@@ -132,13 +148,18 @@
   - Mô tả: `docker-compose up -d postgres` cannot connect to `npipe:////./pipe/docker_engine`.
   - Cần gì để unblock: Start Docker Desktop / Docker daemon, then rerun `docker-compose up -d postgres` and `python scripts/init_db.py`.
 
+**B2 (2026-05-05):** Real Claude smoke cannot run without provider credentials.
+  - Tại milestone: M3
+  - Mô tả: `ANTHROPIC_API_KEY` is not set, so Scenario 1 and real integration are skipped.
+  - Cần gì để unblock: Set `ANTHROPIC_API_KEY`, start Postgres, then run `$env:RUN_REAL_PROVIDER_TESTS="1"; python -m pytest tests/integration/test_claude_provider.py -v`.
+
 ---
 
 ## 📈 Metrics
 
-- **Tổng số commits:** 2 milestone commits after M2 commit
+- **Tổng số commits:** 3 milestone commits after M3 commit
 - **Test coverage hiện tại:** Not measured yet; focused unit suite passing
-- **Lines of code (impl):** M0/M1 implementation added
+- **Lines of code (impl):** M0-M3 implementation added
 - **API keys configured:** TBD (Sếp Linh điền `.env`)
 
 ---
