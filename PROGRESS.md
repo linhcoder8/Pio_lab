@@ -4,7 +4,7 @@
 
 **Phase hiện tại:** MVP Phase 1
 **Bắt đầu:** 2026-05-04
-**Last update:** 2026-05-05 (M0 prerequisites + M1 unit verified)
+**Last update:** 2026-05-05 (M2 Obsidian memory unit verified)
 
 ---
 
@@ -14,8 +14,8 @@
 |---|---|---|---|
 | M0 | Foundation | ✅ Done | Completed as prerequisite for M1 |
 | M1 | Memory · Postgres | ✅ Done | Unit verified; Docker daemon unavailable for live smoke |
-| M2 | Memory · Obsidian | ⏸️ Pending | Next |
-| M3 | Provider Router (Claude) | ⏸️ Pending | |
+| M2 | Memory · Obsidian | ✅ Done | Unit verified |
+| M3 | Provider Router (Claude) | ⏸️ Pending | Next |
 | M4 | Provider Router · 4 còn lại | ⏸️ Pending | |
 | M5 | Security Enforcer | ⏸️ Pending | |
 | M6 | Channel · Web (test bed) | ⏸️ Pending | |
@@ -30,6 +30,14 @@
 ---
 
 ## 📝 Detailed log
+
+### 2026-05-05 — Milestone M2 done
+- ✅ `Vault.write/read/list_notes` implemented with safe relative paths under the vault root.
+- ✅ `SoulMd`, `UserMd`, and `AgentsMd` get/set wrappers implemented.
+- ✅ `AgentsMd.regenerate(registry)` writes `AGENTS.md` from mapping or object registry state.
+- 📝 Decisions: Vault API is synchronous to match the milestone acceptance interface and keep local markdown operations simple.
+- 🧪 Tests: 6 pass for `tests/unit/test_obsidian_vault.py`; 17 pass for current `tests/unit/`; ruff pass.
+- ⏭️ Next: M3
 
 ### 2026-05-05 — Milestone M1 done
 - ✅ `pio_lab/memory/postgres/models.py` has tasks, traces, conversations, providers, provider_accounts.
@@ -61,12 +69,13 @@
 
 ## 🚀 Current milestone
 
-**Đang ở:** M2 — next
+**Đang ở:** M3 — next
 
-### Acceptance criteria — M2
-- [ ] `vault.write/read/list_notes` work
-- [ ] `SoulMd/UserMd/AgentsMd` get/set work
-- [ ] `AgentsMd.regenerate(registry)` build từ registry
+### Acceptance criteria — M3
+- [ ] Router load `config/providers.yaml` thành công
+- [ ] Account pool có ít nhất 1 Claude account
+- [ ] `await router.call("research.optics", [{"role":"user","content":"hi"}])` → response
+- [ ] Trace logged vào Postgres
 
 ---
 
@@ -100,6 +109,11 @@
   - Trade-off: M1 commit includes M0 prerequisite files instead of being purely Postgres-only.
   - Có thể revisit?: no
 
+**D2 (2026-05-05):** Use a synchronous API for Obsidian vault operations.
+  - Lý do: M2 acceptance criteria call `vault.write/read/list_notes` directly, and local markdown operations are small.
+  - Trade-off: No async file abstraction yet; can be revisited if vault writes become high-volume.
+  - Có thể revisit?: yes
+
 ---
 
 ## ⚠️ Blockers
@@ -122,7 +136,7 @@
 
 ## 📈 Metrics
 
-- **Tổng số commits:** 1 milestone commit after M1 commit
+- **Tổng số commits:** 2 milestone commits after M2 commit
 - **Test coverage hiện tại:** Not measured yet; focused unit suite passing
 - **Lines of code (impl):** M0/M1 implementation added
 - **API keys configured:** TBD (Sếp Linh điền `.env`)
