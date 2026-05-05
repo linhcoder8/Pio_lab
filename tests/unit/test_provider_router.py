@@ -1,4 +1,4 @@
-"""Tests for M3 Provider Router with Claude only."""
+"""Tests for M3-M4 Provider Router."""
 
 from __future__ import annotations
 
@@ -17,16 +17,24 @@ from pio_lab.providers.errors import ProviderUnavailableError, QuotaExceededErro
 from pio_lab.providers.router import ProviderRouter
 
 
-class FakeClaudeProvider(BaseProvider):
-    name = "claude"
+class FakeProvider(BaseProvider):
+    name = "fake"
 
-    def __init__(self, response: dict[str, Any] | None = None, error: Exception | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        provider: str,
+        text: str = "Pio_lab works!",
+        response: dict[str, Any] | None = None,
+        error: Exception | None = None,
+    ) -> None:
+        self.name = provider
         self.response = response or {
-            "content": [{"type": "text", "text": "Pio_lab works!"}],
+            "content": [{"type": "text", "text": text}],
             "stop_reason": "end_turn",
             "usage": {"input_tokens": 6, "output_tokens": 5},
             "model": "unused",
-            "provider": "claude",
+            "provider": provider,
             "raw": {"fake": True},
         }
         self.error = error
@@ -78,15 +86,14 @@ async def db_session() -> AsyncIterator[AsyncSession]:
     await engine.dispose()
 
 
-def test_router_loads_provider_config_and_claude_account(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_router_loads_provider_config_and_accounts(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
     router = ProviderRouter()
 
     router.load()
 
     assert router.config is not None
-    assert "claude" in router.adapters
-    assert "codex" not in router.adapters
+    assert {"claude", "codex", "gemini", "deepseek", "ollama"}.issubset(router.adapters)
     assert len(router.account_pool.accounts_for("claude")) >= 1
     account = router.account_pool.next_available("claude", "claude-opus-4-6")
     assert account is not None
@@ -112,7 +119,7 @@ async def test_router_call_uses_claude_adapter_and_logs_trace(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
-    adapter = FakeClaudeProvider()
+    adapter = FakeProvider(provider="claude")
     trace_logger = FakeTraceLogger()
     router = ProviderRouter(adapters={"claude": adapter}, trace_logger=trace_logger)  # type: ignore[arg-type]
 
@@ -139,7 +146,7 @@ async def test_router_logs_trace_row_with_real_trace_logger(
 ) -> None:
     monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
     router = ProviderRouter(
-        adapters={"claude": FakeClaudeProvider()},
+        adapters={"claude": FakeProvider(provider="claude")},
         trace_logger=TraceLogger(),
         trace_session=db_session,
     )
@@ -157,21 +164,34 @@ async def test_router_logs_trace_row_with_real_trace_logger(
 
 
 @pytest.mark.asyncio
-async def test_router_skips_unimplemented_m4_providers(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_router_falls_back_from_claude_to_codex(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
-    router = ProviderRouter(adapters={"claude": FakeClaudeProvider()})
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    claude = FakeProvider(
+        provider="claude",
+        error=QuotaExceededError(
+            "quota exhausted",
+            provider="claude",
+            account_id="claude_main",
+        ),
+    )
+    codex = FakeProvider(provider="codex", text="Codex fallback works")
+    router = ProviderRouter(adapters={"claude": claude, "codex": codex})
 
-    with pytest.raises(ProviderUnavailableError) as error:
-        await router.call("coder.backend", [{"role": "user", "content": "hi"}])
+    response = await router.call("chief_of_staff", [{"role": "user", "content": "hi"}])
 
-    assert "adapter not implemented" in str(error.value)
-    assert router.status_tracker.get("coder.backend", "codex", "gpt-4o").state == "skipped"
+    assert response["provider"] == "codex"
+    assert response["content"][0]["text"] == "Codex fallback works"
+    assert router.status_tracker.get("chief_of_staff", "claude", "claude-opus-4-6").state == "failed"
+    assert router.status_tracker.get("chief_of_staff", "codex", "o1-preview").state == "end"
+    assert codex.calls[0]["account"].account_id == "codex_main"
 
 
 @pytest.mark.asyncio
 async def test_router_marks_quota_exhausted(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
-    adapter = FakeClaudeProvider(
+    adapter = FakeProvider(
+        provider="claude",
         error=QuotaExceededError(
             "quota exhausted",
             provider="claude",

@@ -12,6 +12,10 @@ from pio_lab.memory.postgres.traces import TraceLogger
 from pio_lab.providers.account_pool import AccountPool, ProviderAccount
 from pio_lab.providers.adapters.base_provider import BaseProvider, NormalizedResponse
 from pio_lab.providers.adapters.claude_adapter import ClaudeProvider
+from pio_lab.providers.adapters.codex_adapter import CodexProvider
+from pio_lab.providers.adapters.deepseek_adapter import DeepSeekProvider
+from pio_lab.providers.adapters.gemini_adapter import GeminiProvider
+from pio_lab.providers.adapters.ollama_adapter import OllamaProvider
 from pio_lab.providers.errors import ProviderError, ProviderUnavailableError, QuotaExceededError
 from pio_lab.providers.status_tracker import StatusTracker
 from pio_lab.providers.token_tracker import TokenTracker
@@ -161,8 +165,12 @@ class ProviderRouter:
         ]
 
     def _init_adapters(self) -> None:
-        """Initialize only the Claude adapter for M3."""
+        """Initialize all Phase 1 provider adapters."""
         self.adapters.setdefault("claude", ClaudeProvider())
+        self.adapters.setdefault("codex", CodexProvider())
+        self.adapters.setdefault("gemini", GeminiProvider())
+        self.adapters.setdefault("deepseek", DeepSeekProvider())
+        self.adapters.setdefault("ollama", OllamaProvider())
 
     async def _call_target(
         self,
