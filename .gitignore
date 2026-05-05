@@ -80,3 +80,19 @@ desktop.ini
 pio_lab/layer0_console/web/node_modules/
 pio_lab/layer0_console/web/dist/
 pio_lab/layer0_console/web/.next/
+
+# temp files
+.~lock*
+*.tmp
+*.log
+
+# env / secrets
+.env
+.env.*
+
+# local knowledge / vault
+vault/
+
+# OS
+.DS_Store
+Thumbs.db
