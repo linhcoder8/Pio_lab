@@ -62,7 +62,7 @@ def provider_task(
     user_input = str(task.get("input") or task.get("task") or "")
     return {
         **task,
-        "input": f"{user_input}\n\nProvider-mode instructions:\n{instruction}".strip(),
+        "input": f"{user_input}\n\nTask instructions:\n{instruction}".strip(),
     }
 
 

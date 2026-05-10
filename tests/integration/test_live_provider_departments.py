@@ -47,5 +47,9 @@ async def test_research_optics_can_use_codex_oauth_provider(monkeypatch: pytest.
     assert result["worker_id"] == "optics"
     assert result["routing_key"] == "research.optics"
     assert result["output"].strip()
+    assert "please paste" not in result["output"].lower()
+    assert "provider adapter" not in result["output"].lower()
+    assert "codex cli" not in result["output"].lower()
+    assert "workspace" not in result["output"].lower()
     assert result["worker_result"]["raw_response"]["provider"] == "codex"
     assert result["worker_result"]["raw_response"]["model"] == "gpt-4o"

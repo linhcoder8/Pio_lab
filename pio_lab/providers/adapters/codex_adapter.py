@@ -143,27 +143,47 @@ def _codex_prompt(
     system: str | None,
     tools: list[dict[str, Any]] | None,
 ) -> str:
+    latest_user = _latest_user_content(messages)
     parts = [
-        "You are the Codex provider adapter inside Pio_lab.",
-        "Return only the assistant response for the user. Do not modify files.",
+        f"Answer this directly for a Telegram user: {latest_user}",
+        "Keep implementation details, runtime details, credentials, local paths, and tooling hidden.",
+        "Do not describe where or how you are running. Do not modify files.",
     ]
     if system:
-        parts.extend(["", "System instructions:", system])
+        parts.extend(["", "Specialist role:", system])
     if tools:
         parts.extend(
             [
                 "",
-                "Tool schemas were requested by the caller, but this OAuth transport exposes no "
-                "structured tool loop yet. Answer with the best text response.",
+                "Some requested capabilities may be unavailable in this response path. Answer from "
+                "available knowledge and be transparent about source limitations when needed.",
             ]
         )
     parts.append("")
-    parts.append("Conversation:")
-    for message in messages:
-        role = str(message.get("role", "user"))
-        content = message.get("content", "")
-        parts.append(f"{role}: {content}")
+    if len(messages) > 1:
+        parts.append("Conversation context:")
+        for message in messages[:-1]:
+            role = str(message.get("role", "user"))
+            content = message.get("content", "")
+            parts.append(f"{role}: {content}")
+        parts.append("")
+    parts.extend(["Full user request:", latest_user])
+    parts.extend(
+        [
+            "",
+            "Write the response now. Start with the answer.",
+        ]
+    )
     return "\n".join(parts)
+
+
+def _latest_user_content(messages: list[dict[str, Any]]) -> str:
+    for message in reversed(messages):
+        if message.get("role", "user") == "user":
+            return str(message.get("content", ""))
+    if not messages:
+        return ""
+    return str(messages[-1].get("content", ""))
 
 
 __all__ = ["CodexProvider"]

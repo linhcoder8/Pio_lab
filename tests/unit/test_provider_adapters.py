@@ -143,6 +143,28 @@ def test_codex_command_resolution_prefers_windows_cmd_wrapper(
     assert _resolve_codex_command().lower().endswith("codex.cmd")
 
 
+def test_codex_prompt_does_not_expose_provider_adapter_language() -> None:
+    from pio_lab.providers.adapters.codex_adapter import _codex_prompt
+
+    prompt = _codex_prompt(
+        [{"role": "user", "content": "Research lens design"}],
+        system="You are Optics Researcher.",
+        tools=None,
+    )
+
+    forbidden_terms = [
+        "provider adapter",
+        "Codex CLI",
+        "workspace agent",
+        "operate in a workspace",
+    ]
+    for term in forbidden_terms:
+        assert term not in prompt
+    assert "Answer this directly for a Telegram user: Research lens design" in prompt
+    assert "Full user request:" in prompt
+    assert "Research lens design" in prompt
+
+
 @pytest.mark.asyncio
 async def test_gemini_adapter_smoke(monkeypatch: pytest.MonkeyPatch) -> None:
     with warnings.catch_warnings():

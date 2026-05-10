@@ -4,7 +4,7 @@
 
 **Phase hiện tại:** MVP Phase 1
 **Bắt đầu:** 2026-05-04
-**Last update:** 2026-05-10 (M11 Channels + Console UI done)
+**Last update:** 2026-05-10 (Codex OAuth provider prompt hardening)
 
 ---
 
@@ -44,9 +44,11 @@
 - ✅ Added opt-in live department mode: `DEPARTMENT_WORKER_MODE=provider` makes text workers call ProviderRouter; `PROVIDER_ROUTING_PROFILE=codex_oauth` promotes selected text paths to Codex OAuth.
 - ✅ Live provider-backed department smoke passes: `RUN_REAL_PROVIDER_TESTS=1 python -m pytest tests/integration/test_live_provider_departments.py -v` verifies `RESEARCH.optics` output comes from Codex OAuth.
 - ✅ Fixed Windows Codex CLI resolution: Codex OAuth adapter now resolves `codex.cmd`/`codex.exe` instead of assuming bare `codex` is executable from Python subprocess.
+- ✅ Fixed Codex OAuth prompt leakage: provider-backed Telegram/department responses now answer the user directly instead of exposing adapter/runtime wording.
+- ✅ Live prompt smoke verified: `Research lens design and summarize with citations` returns a lens-design answer with source hints and no `provider adapter`/`codex cli`/`workspace` terms.
 - ✅ `.env.example` keeps Telegram values blank and includes `TELEGRAM_TEST_CHAT_ID` placeholder; real secrets stay in `.env` only.
-- 🧪 Tests: full `python -m pytest -q` = 69 pass, 3 skipped; full `python -m ruff check .` pass.
-- ⏭️ Next: restart Telegram bot with `.env` live mode, then send a research/content task and confirm archive output text is provider-backed.
+- 🧪 Tests: full `python -m pytest -q` = 70 pass, 3 skipped; full `python -m ruff check .` pass.
+- ⏭️ Next: restart Telegram bot with `.env` live mode, then resend the research/content task and confirm the Telegram reply is user-facing.
 
 ### 2026-05-10 — MVP hardening: full-flow integration tests
 - ✅ Replaced placeholder `tests/integration/test_full_flow.py` with real end-to-end coverage.
@@ -296,6 +298,11 @@
   - Trade-off: Cần một lượt live smoke riêng sau khi Sếp Linh cấu hình token/webhook thật.
   - Có thể revisit?: yes
 
+**D13 (2026-05-10):** Keep Codex OAuth prompts user-facing and hide local runtime details.
+  - Lý do: Telegram live response exposed adapter/runtime wording instead of answering the user's research task.
+  - Trade-off: Codex OAuth remains a CLI-backed bridge and cannot use the structured tool loop yet, so source/tool limitations may still be mentioned when relevant.
+  - Có thể revisit?: yes
+
 ---
 
 ## ⚠️ Blockers
@@ -318,7 +325,7 @@
 
 ## 📈 Metrics
 
-- **Tổng số commits:** 11 milestone commits after M11 commit
+- **Tổng số commits:** 12 implementation commits after M11 commit
 - **Test coverage hiện tại:** Not measured yet; unit + local integration suite passing
 - **Lines of code (impl):** M0-M11 implementation added
 - **API keys configured:** Telegram bot token configured in `.env`; Codex OAuth logged in and selected by `.env` live routing profile; provider API keys TBD
