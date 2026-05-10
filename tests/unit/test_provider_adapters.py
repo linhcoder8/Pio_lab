@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 import warnings
@@ -129,6 +131,39 @@ async def test_codex_adapter_can_use_codex_oauth_cache(
     assert response["provider"] == "codex"
     assert response["content"][0]["text"] == "Codex OAuth works"
     assert response["raw"]["transport"] == "codex_cli"
+
+
+@pytest.mark.asyncio
+async def test_codex_cli_disables_web_search_and_prefers_output_file(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, Any] = {}
+
+    class FakeProcess:
+        returncode = 1
+
+        def __init__(self, output_path: Path) -> None:
+            self.output_path = output_path
+
+        async def communicate(self) -> tuple[bytes, bytes]:
+            self.output_path.write_text("Codex output from file", encoding="utf-8")
+            return b"noisy stdout", b"warning stderr"
+
+    async def fake_create_subprocess_exec(*args: str, **kwargs: Any) -> FakeProcess:
+        captured["args"] = args
+        captured["kwargs"] = kwargs
+        output_path = Path(args[args.index("--output-last-message") + 1])
+        return FakeProcess(output_path)
+
+    monkeypatch.setenv("CODEX_COMMAND", "codex-test")
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", fake_create_subprocess_exec)
+
+    output = await CodexProvider()._run_codex_cli("hello", timeout=5)
+
+    assert output == "Codex output from file"
+    assert "-c" in captured["args"]
+    assert 'web_search="disabled"' in captured["args"]
+    assert captured["kwargs"]["stdin"] == asyncio.subprocess.DEVNULL
 
 
 def test_codex_command_resolution_prefers_windows_cmd_wrapper(

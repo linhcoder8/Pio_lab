@@ -6,6 +6,8 @@ from typing import Any
 
 from pio_lab.layer4_departments.base.worker_base import GenericWorker
 from pio_lab.layer4_departments.worker_utils import provider_task, should_use_provider_worker
+from pio_lab.providers.errors import ProviderUnavailableError
+from pio_lab.utils.logging import logger
 
 
 class OpticsWorker(GenericWorker):
@@ -18,17 +20,23 @@ class OpticsWorker(GenericWorker):
     ) -> dict[str, Any]:
         """Return a lens design summary with stable citations."""
         if should_use_provider_worker(task, context):
-            return await super().run(
-                provider_task(
-                    task,
-                    instruction=(
-                        "Return a concise optics research summary for the user's topic. "
-                        "Include 2-3 citation-style references or source hints when possible. "
-                        "Do not claim that files were written."
+            try:
+                return await super().run(
+                    provider_task(
+                        task,
+                        instruction=(
+                            "Return a concise optics research summary for the user's topic. "
+                            "Include 2-3 citation-style references or source hints when possible. "
+                            "Do not claim that files were written."
+                        ),
                     ),
-                ),
-                context,
-            )
+                    context,
+                )
+            except ProviderUnavailableError as error:
+                logger.warning(
+                    "Optics provider unavailable; using deterministic fallback: {error}",
+                    error=error,
+                )
 
         query = str(task.get("query") or task.get("input") or task.get("task") or "lens design")
         citations = [

@@ -29,6 +29,11 @@ class FakeChiefOfStaff:
         }
 
 
+class FailingChiefOfStaff:
+    async def run(self, payload: dict[str, Any]) -> dict[str, Any]:
+        raise RuntimeError("backend unavailable")
+
+
 class FakeProvider(BaseProvider):
     name = "fake"
 
@@ -64,6 +69,21 @@ async def test_telegram_message_routes_full_flow_and_chunks_long_output() -> Non
     assert reply.channel == "telegram"
     assert reply.text == "telegram reply: Research lens design"
     assert chunk_text("a" * 4100, channel="telegram")[1]
+
+
+@pytest.mark.asyncio
+async def test_channel_router_returns_error_reply_when_backend_fails() -> None:
+    router = ChannelRouter(chief_of_staff=FailingChiefOfStaff())  # type: ignore[arg-type]
+
+    reply = await router.handle_text(
+        channel="telegram",
+        user_id="42",
+        text="Research lens design",
+    )
+
+    assert reply.raw_result["status"] == "error"
+    assert reply.raw_result["error_type"] == "RuntimeError"
+    assert "Pio_lab gặp lỗi" in reply.text
 
 
 @pytest.mark.asyncio

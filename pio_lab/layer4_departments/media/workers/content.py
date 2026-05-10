@@ -6,6 +6,8 @@ from typing import Any
 
 from pio_lab.layer4_departments.base.worker_base import GenericWorker
 from pio_lab.layer4_departments.worker_utils import count_words, provider_task, should_use_provider_worker
+from pio_lab.providers.errors import ProviderUnavailableError
+from pio_lab.utils.logging import logger
 
 
 class ContentWorker(GenericWorker):
@@ -18,16 +20,22 @@ class ContentWorker(GenericWorker):
     ) -> dict[str, Any]:
         """Return a blog article of at least 500 words."""
         if should_use_provider_worker(task, context):
-            return await super().run(
-                provider_task(
-                    task,
-                    instruction=(
-                        "Write a polished blog article. Use clear headings and practical prose. "
-                        "Do not claim that files were written."
+            try:
+                return await super().run(
+                    provider_task(
+                        task,
+                        instruction=(
+                            "Write a polished blog article. Use clear headings and practical prose. "
+                            "Do not claim that files were written."
+                        ),
                     ),
-                ),
-                context,
-            )
+                    context,
+                )
+            except ProviderUnavailableError as error:
+                logger.warning(
+                    "Content provider unavailable; using deterministic fallback: {error}",
+                    error=error,
+                )
 
         topic = str(task.get("topic") or task.get("input") or task.get("task") or "AI operations")
         article = _build_blog(topic)

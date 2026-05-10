@@ -86,6 +86,8 @@ class CodexProvider(OpenAIChatProvider):
         args = [
             command,
             "exec",
+            "-c",
+            'web_search="disabled"',
             "--sandbox",
             "read-only",
             "--cd",
@@ -99,19 +101,20 @@ class CodexProvider(OpenAIChatProvider):
         try:
             process = await asyncio.create_subprocess_exec(
                 *args,
+                stdin=asyncio.subprocess.DEVNULL,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
             stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout)
+            text = output_path.read_text(encoding="utf-8").strip()
+            if text:
+                return text
             if process.returncode != 0:
                 detail = (stderr or stdout).decode("utf-8", errors="replace").strip()
                 raise ProviderError(
                     f"Codex CLI failed: {detail[:500]}",
                     provider=self.name,
                 )
-            text = output_path.read_text(encoding="utf-8").strip()
-            if text:
-                return text
             return stdout.decode("utf-8", errors="replace").strip()
         except TimeoutError as error:
             raise ProviderError("Codex CLI timed out", provider=self.name) from error

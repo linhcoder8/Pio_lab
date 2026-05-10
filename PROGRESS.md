@@ -4,7 +4,7 @@
 
 **Phase hiện tại:** MVP Phase 1
 **Bắt đầu:** 2026-05-04
-**Last update:** 2026-05-10 (Codex OAuth provider prompt hardening)
+**Last update:** 2026-05-10 (Telegram provider failure handling)
 
 ---
 
@@ -46,8 +46,12 @@
 - ✅ Fixed Windows Codex CLI resolution: Codex OAuth adapter now resolves `codex.cmd`/`codex.exe` instead of assuming bare `codex` is executable from Python subprocess.
 - ✅ Fixed Codex OAuth prompt leakage: provider-backed Telegram/department responses now answer the user directly instead of exposing adapter/runtime wording.
 - ✅ Live prompt smoke verified: `Research lens design and summarize with citations` returns a lens-design answer with source hints and no `provider adapter`/`codex cli`/`workspace` terms.
+- ✅ Fixed Telegram no-reply path when Codex CLI fails during web search: Codex OAuth adapter now disables CLI web search for this bridge, uses the output file when available, and passes `stdin=DEVNULL`.
+- ✅ ChannelRouter now catches backend exceptions and sends a controlled Telegram-visible error instead of letting `python-telegram-bot` drop the reply.
+- ✅ Research/content provider mode now falls back to deterministic workers if all provider targets fail.
+- ✅ Live research/optics provider path verified again: `provider=codex` returns a lens-design summary without web-search failure.
 - ✅ `.env.example` keeps Telegram values blank and includes `TELEGRAM_TEST_CHAT_ID` placeholder; real secrets stay in `.env` only.
-- 🧪 Tests: full `python -m pytest -q` = 70 pass, 3 skipped; full `python -m ruff check .` pass.
+- 🧪 Tests: full `python -m pytest -q` = 73 pass, 3 skipped; full `python -m ruff check .` pass.
 - ⏭️ Next: restart Telegram bot with `.env` live mode, then resend the research/content task and confirm the Telegram reply is user-facing.
 
 ### 2026-05-10 — MVP hardening: full-flow integration tests
@@ -301,6 +305,11 @@
 **D13 (2026-05-10):** Keep Codex OAuth prompts user-facing and hide local runtime details.
   - Lý do: Telegram live response exposed adapter/runtime wording instead of answering the user's research task.
   - Trade-off: Codex OAuth remains a CLI-backed bridge and cannot use the structured tool loop yet, so source/tool limitations may still be mentioned when relevant.
+  - Có thể revisit?: yes
+
+**D14 (2026-05-10):** Disable Codex CLI web search inside the OAuth provider bridge.
+  - Lý do: Telegram live run failed while Codex CLI was performing web search, causing no reply to be sent.
+  - Trade-off: Provider-backed department answers use model knowledge/source hints unless a later structured tool loop is implemented.
   - Có thể revisit?: yes
 
 ---

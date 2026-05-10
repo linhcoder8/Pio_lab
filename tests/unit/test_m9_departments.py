@@ -14,6 +14,7 @@ import pytest
 
 from pio_lab.core.registry import DepartmentRegistry
 from pio_lab.layer3_chief_of_staff.chief_of_staff import ChiefOfStaff
+from pio_lab.providers.errors import ProviderUnavailableError
 from pio_lab.security.policy_loader import PROJECT_ROOT
 
 
@@ -31,6 +32,16 @@ class FakeRouter:
             "model": "fake-model",
             "raw": None,
         }
+
+
+class FailingRouter:
+    async def call(
+        self,
+        routing_key: str,
+        messages: list[dict[str, Any]],
+        **kwargs: Any,
+    ) -> dict[str, Any]:
+        raise ProviderUnavailableError(routing_key, ["codex/gpt-4o: failed"])
 
 
 class FakeTraceLogger:
@@ -88,6 +99,26 @@ async def test_research_optics_returns_lens_design_summary_with_citation(
     assert "Lens design" in result["output"] or "lens design" in result["output"]
     assert "[1]" in result["output"]
     assert result["citations"][0]["url"].startswith("https://doi.org/")
+
+
+@pytest.mark.asyncio
+async def test_research_provider_mode_falls_back_when_provider_unavailable() -> None:
+    registry = DepartmentRegistry(
+        router=FailingRouter(),  # type: ignore[arg-type]
+        trace_logger=FakeTraceLogger(),  # type: ignore[arg-type]
+    ).load_all()
+
+    result = await registry.get_department("research").run(
+        {
+            "input": "Research lens design and summarize",
+            "worker": "optics",
+            "worker_mode": "provider",
+        }
+    )
+
+    assert result["worker_id"] == "optics"
+    assert "Lens design" in result["output"] or "lens design" in result["output"]
+    assert result["citations"]
 
 
 @pytest.mark.asyncio

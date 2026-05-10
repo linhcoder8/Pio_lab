@@ -8,6 +8,7 @@ from typing import Any
 from pio_lab.layer3_chief_of_staff.chief_of_staff import ChiefOfStaff, get_chief_of_staff
 from pio_lab.security.enforcer import SecurityEnforcer, SecurityError, enforcer
 from pio_lab.utils.helpers import gen_request_id, utc_now
+from pio_lab.utils.logging import logger
 
 
 @dataclass(frozen=True, slots=True)
@@ -50,15 +51,31 @@ class ChannelRouter:
             reply_text = f"Blocked by security policy: {error}"
             raw_result: dict[str, Any] = {"status": "blocked", "error": str(error)}
         else:
-            raw_result = await self.chief_of_staff.run(
-                {
-                    "input": text,
-                    "channel": channel,
-                    "user_id": user_id,
-                    "metadata": metadata or {},
+            try:
+                raw_result = await self.chief_of_staff.run(
+                    {
+                        "input": text,
+                        "channel": channel,
+                        "user_id": user_id,
+                        "metadata": metadata or {},
+                    }
+                )
+                reply_text = self._format_result(raw_result)
+            except Exception as error:
+                logger.exception(
+                    "Channel routing failed for {channel}/{user_id}: {error}",
+                    channel=channel,
+                    user_id=user_id,
+                    error=error,
+                )
+                raw_result = {
+                    "status": "error",
+                    "error_type": error.__class__.__name__,
                 }
-            )
-            reply_text = self._format_result(raw_result)
+                reply_text = (
+                    "Pio_lab gặp lỗi khi xử lý yêu cầu. Lỗi đã được ghi ở terminal/log; "
+                    "hãy thử lại sau ít phút."
+                )
 
         reply_text = self.security.mask_secrets_in_output(reply_text)
         return ChannelReply(
