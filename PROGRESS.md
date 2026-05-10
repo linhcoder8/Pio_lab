@@ -4,7 +4,7 @@
 
 **Phase hiện tại:** MVP Phase 1
 **Bắt đầu:** 2026-05-04
-**Last update:** 2026-05-10 (M10 Knowledge Librarian done)
+**Last update:** 2026-05-10 (M11 Channels + Console UI done)
 
 ---
 
@@ -23,13 +23,24 @@
 | M8 | Department + Worker base | ✅ Done | Registry + GenericDepartment/Worker verified |
 | M9 | 5 Departments cụ thể | ✅ Done | Concrete workers + CoS dispatch verified |
 | M10 | Knowledge Librarian | ✅ Done | Postgres + Obsidian archive/search verified |
-| M11 | Channels còn lại + Console UI | ⏸️ Pending | Next |
+| M11 | Channels còn lại + Console UI | ✅ Done | Telegram/Discord/Zalo adapters + admin UI verified |
 
 **Status legend:** ⏸️ Pending · 🚧 In progress · ✅ Done · ⚠️ Blocked
 
 ---
 
 ## 📝 Detailed log
+
+### 2026-05-10 — Milestone M11 done
+- ✅ Added shared `ChannelRouter` for external channel text → security → Chief of Staff → formatted/masked reply.
+- ✅ `TelegramAdapter` supports whitelist, `/start`, `/help`, `/status`, chunked replies, and full CoS routing.
+- ✅ `DiscordAdapter` supports DM/slash-style prompts, optional whitelist, and full CoS routing.
+- ✅ `ZaloAdapter` supports OA webhook payload parsing and outbound OA message sending.
+- ✅ `/admin`, `/admin/tasks`, and `/admin/org` are available behind the existing web login session.
+- ✅ Admin API can add a department backed by YAML config and reload/dispatch it through `DepartmentRegistry`.
+- 📝 Decisions: M11 verifies channel adapters with unit-level fake CoS/router because live Telegram/Discord/Zalo smoke requires real bot tokens, public webhook URLs, and owner account IDs.
+- 🧪 Tests: focused `tests/unit/test_m11_channels_console.py` = 6 pass; full `python -m pytest -q` = 66 pass, 2 skipped; full `python -m ruff check .` pass.
+- ⏭️ Next: MVP hardening / live external-channel smoke
 
 ### 2026-05-10 — Milestone M10 done
 - ✅ `KnowledgeLibrarian.run(state)` archives only completed QA-passed tasks.
@@ -165,13 +176,13 @@
 
 ## 🚀 Current milestone
 
-**Đang ở:** M11 — next
+**Đang ở:** M11 — done
 
-### Acceptance criteria — M10
-- [x] After CoS report node passes QA → librarian called automatically
-- [x] `tasks` row inserted với full plan + output
-- [x] Markdown note created in `vault/tasks/`
-- [x] `librarian.search("optics lens")` returns relevant past tasks
+### Acceptance criteria — M11
+- [x] **M11.1 Telegram:** user gõ → reply (full flow via adapter test)
+- [x] **M11.2 Discord:** slash/DM-style prompt → reply
+- [x] **M11.3 Zalo:** OA webhook payload → reply + outbound sender implemented
+- [x] **M11.4 UI:** `/admin/*` pages work, add dept qua UI/API, registry reload verified
 
 ---
 
@@ -255,6 +266,11 @@
   - Trade-off: Code dùng `ChiefOfStaff(...)` trực tiếp phải truyền `librarian=KnowledgeLibrarian(...)` nếu muốn archive.
   - Có thể revisit?: yes
 
+**D12 (2026-05-10):** Verify M11 external channels with fake CoS/router instead of live bot networks.
+  - Lý do: Live Telegram/Discord/Zalo smoke cần token thật, public webhook URL/ngrok, và owner account IDs; unit adapter tests vẫn chứng minh inbound → CoS → outbound formatting.
+  - Trade-off: Cần một lượt live smoke riêng sau khi Sếp Linh cấu hình token/webhook thật.
+  - Có thể revisit?: yes
+
 ---
 
 ## ⚠️ Blockers
@@ -277,9 +293,9 @@
 
 ## 📈 Metrics
 
-- **Tổng số commits:** 10 milestone commits after M10 commit
+- **Tổng số commits:** 11 milestone commits after M11 commit
 - **Test coverage hiện tại:** Not measured yet; focused unit suite passing
-- **Lines of code (impl):** M0-M10 implementation added
+- **Lines of code (impl):** M0-M11 implementation added
 - **API keys configured:** TBD (Sếp Linh điền `.env`)
 
 ---

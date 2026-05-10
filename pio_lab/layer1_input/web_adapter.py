@@ -11,6 +11,7 @@ from fastapi import APIRouter, Request, Response, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
+from pio_lab.layer0_console.admin import ConsoleAdmin, DepartmentAdminService
 from pio_lab.layer3_chief_of_staff.chief_of_staff import ChiefOfStaff, get_chief_of_staff
 from pio_lab.security.enforcer import SecurityEnforcer, SecurityError, enforcer
 from pio_lab.utils.env import Settings, get_settings
@@ -46,12 +47,18 @@ class WebAdapter:
         settings: Settings | None = None,
         security: SecurityEnforcer | None = None,
         chief_of_staff: ChiefOfStaff | None = None,
+        department_admin: DepartmentAdminService | None = None,
     ) -> None:
         self.settings = settings or get_settings()
         self.security = security or enforcer
         self.chief_of_staff = chief_of_staff or get_chief_of_staff()
         self.router = APIRouter()
+        self.admin_console = ConsoleAdmin(
+            is_authenticated=self.is_authenticated,
+            department_admin=department_admin,
+        )
         self._register_routes()
+        self.router.include_router(self.admin_console.router)
 
     def is_authenticated(self, request: Request) -> bool:
         """Return whether an HTTP request has a valid session cookie."""
@@ -241,6 +248,7 @@ def _chat_page_html() -> str:
 <body>
   <header>
     <h1>Pio_lab Web</h1>
+    <nav><a href="/admin">Admin</a></nav>
     <form method="post" action="/logout"><button class="logout" type="submit">Logout</button></form>
   </header>
   <main>
