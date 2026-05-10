@@ -31,6 +31,14 @@
 
 ## 📝 Detailed log
 
+### 2026-05-10 — MVP hardening: full-flow integration tests
+- ✅ Replaced placeholder `tests/integration/test_full_flow.py` with real end-to-end coverage.
+- ✅ Research flow now verifies Chief of Staff → RESEARCH.optics → QA → Knowledge Librarian archive → Obsidian note → librarian search → lifecycle trace linked to archived task.
+- ✅ QA replan flow now verifies first QA `NEEDS_FIX`, second run `PASS`, and only the final passing output is archived.
+- ✅ Verified there are no remaining `TODO Phase 1` markers in `pio_lab`, `tests`, or `scripts`.
+- 🧪 Tests: `python -m pytest tests/integration/test_full_flow.py -v` = 2 pass; full `python -m pytest -q` = 66 pass, 2 skipped; full `python -m ruff check .` pass.
+- ⏭️ Next: live external-channel smoke when Telegram/Discord/Zalo credentials and webhook URLs are configured.
+
 ### 2026-05-10 — Milestone M11 done
 - ✅ Added shared `ChannelRouter` for external channel text → security → Chief of Staff → formatted/masked reply.
 - ✅ `TelegramAdapter` supports whitelist, `/start`, `/help`, `/status`, chunked replies, and full CoS routing.
@@ -176,7 +184,7 @@
 
 ## 🚀 Current milestone
 
-**Đang ở:** M11 — done
+**Đang ở:** MVP hardening / live smoke
 
 ### Acceptance criteria — M11
 - [x] **M11.1 Telegram:** user gõ → reply (full flow via adapter test)
@@ -294,9 +302,10 @@
 ## 📈 Metrics
 
 - **Tổng số commits:** 11 milestone commits after M11 commit
-- **Test coverage hiện tại:** Not measured yet; focused unit suite passing
+- **Test coverage hiện tại:** Not measured yet; unit + local integration suite passing
 - **Lines of code (impl):** M0-M11 implementation added
 - **API keys configured:** TBD (Sếp Linh điền `.env`)
+- **TODO Phase 1 markers:** 0 in `pio_lab`, `tests`, `scripts`
 
 ---
 
