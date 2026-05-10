@@ -22,6 +22,7 @@ class ChiefOfStaffState(TypedDict, total=False):
     replan_count: int
     max_replans: int
     final_output: dict[str, Any]
+    archive: dict[str, Any]
     status: str
     requires_approval: bool
     approval_request: dict[str, Any]

@@ -15,6 +15,7 @@ from pio_lab.layer3_chief_of_staff.plan import PlanNode, route_after_plan
 from pio_lab.layer3_chief_of_staff.report import QAReviewer, ReportNode, route_after_report
 from pio_lab.layer3_chief_of_staff.replan import replan_node
 from pio_lab.layer3_chief_of_staff.state import ChiefOfStaffState
+from pio_lab.layer5_librarian import KnowledgeLibrarian
 from pio_lab.memory.postgres.traces import TraceLogger
 from pio_lab.providers.router import ProviderRouter, get_router
 from pio_lab.security.enforcer import SecurityEnforcer, enforcer
@@ -35,12 +36,14 @@ class ChiefOfStaff:
         trace_session: AsyncSession | None = None,
         dispatch_handler: DispatchHandler | None = None,
         qa_reviewer: QAReviewer | None = None,
+        librarian: KnowledgeLibrarian | None = None,
         app_config: dict[str, Any] | None = None,
     ) -> None:
         self.router = router or get_router()
         self.security = security or enforcer
         self.trace_logger = trace_logger or TraceLogger()
         self.trace_session = trace_session
+        self.librarian = librarian
         self.app_config = app_config or load_pio_lab_config()
         self.checkpointer = MemorySaver()
         self.graph = self._build_graph(dispatch_handler, qa_reviewer)
@@ -143,8 +146,26 @@ class ChiefOfStaff:
             return paused
 
         completed = {**result, "thread_id": thread_id}
+        completed = await self._archive_result(completed)
         await self._log_lifecycle(completed)
         return completed
+
+    async def _archive_result(self, state: dict[str, Any]) -> dict[str, Any]:
+        if self.librarian is None:
+            return state
+        try:
+            archive = await self.librarian.run(state)
+        except Exception as error:
+            logger.warning("Knowledge Librarian archive failed: {error}", error=error)
+            return {
+                **state,
+                "archive": {"archived": False, "error": str(error)},
+            }
+
+        updated = {**state, "archive": archive}
+        if archive.get("task_id") and not updated.get("trace_task_id"):
+            updated["trace_task_id"] = archive["task_id"]
+        return updated
 
     async def _log_lifecycle(self, state: dict[str, Any]) -> None:
         try:
@@ -187,7 +208,7 @@ def get_chief_of_staff() -> ChiefOfStaff:
     global _chief_of_staff
 
     if _chief_of_staff is None:
-        _chief_of_staff = ChiefOfStaff()
+        _chief_of_staff = ChiefOfStaff(librarian=KnowledgeLibrarian())
     return _chief_of_staff
 
 

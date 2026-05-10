@@ -4,7 +4,7 @@
 
 **Phase hiện tại:** MVP Phase 1
 **Bắt đầu:** 2026-05-04
-**Last update:** 2026-05-10 (M9 concrete departments done)
+**Last update:** 2026-05-10 (M10 Knowledge Librarian done)
 
 ---
 
@@ -22,14 +22,24 @@
 | M7 | Chief of Staff (LangGraph) | ✅ Done | LangGraph run/replan/approval verified |
 | M8 | Department + Worker base | ✅ Done | Registry + GenericDepartment/Worker verified |
 | M9 | 5 Departments cụ thể | ✅ Done | Concrete workers + CoS dispatch verified |
-| M10 | Knowledge Librarian | ⏸️ Pending | Next |
-| M11 | Channels còn lại + Console UI | ⏸️ Pending | |
+| M10 | Knowledge Librarian | ✅ Done | Postgres + Obsidian archive/search verified |
+| M11 | Channels còn lại + Console UI | ⏸️ Pending | Next |
 
 **Status legend:** ⏸️ Pending · 🚧 In progress · ✅ Done · ⚠️ Blocked
 
 ---
 
 ## 📝 Detailed log
+
+### 2026-05-10 — Milestone M10 done
+- ✅ `KnowledgeLibrarian.run(state)` archives only completed QA-passed tasks.
+- ✅ `PostgresTaskStore` inserts full task request, plan, output, and status into the existing `tasks` table.
+- ✅ `ObsidianTaskStore` writes canonical notes under `vault/tasks/YYYY-MM-DD/<task_id>.md`.
+- ✅ `KnowledgeLibrarian.search("optics lens")` returns relevant archived task rows.
+- ✅ Runtime `get_chief_of_staff()` now wires the librarian so completed QA-passed web/runtime tasks archive automatically.
+- 📝 Decisions: direct `ChiefOfStaff(...)` remains librarian opt-in for tests/custom runs; the runtime singleton enables it by default to avoid accidental DB/vault writes in isolated unit tests.
+- 🧪 Tests: focused `tests/unit/test_librarian.py` = 4 pass; full `python -m pytest -q` = 60 pass, 2 skipped; full `python -m ruff check .` pass.
+- ⏭️ Next: M11
 
 ### 2026-05-10 — Milestone M9 done
 - ✅ `CODER.backend` writes one Python file plus a pytest file, then verifies the artifact with pytest.
@@ -155,15 +165,13 @@
 
 ## 🚀 Current milestone
 
-**Đang ở:** M10 — next
+**Đang ở:** M11 — next
 
-### Acceptance criteria — M9
-- [x] CODER.backend: write 1 file Python, run pytest pass
-- [x] RESEARCH.optics: search "lens design" → return summary với citation
-- [x] MEDIA.content: viết blog 500 từ
-- [x] REPORT.slide_word_web: tạo file `.pptx` từ data
-- [x] QA.qa_reviewer: nhận output → trả PASS/NEEDS_FIX với JSON đúng format
-- [x] End-to-end test: user request → CoS → dispatch → 1 dept → QA → output
+### Acceptance criteria — M10
+- [x] After CoS report node passes QA → librarian called automatically
+- [x] `tasks` row inserted với full plan + output
+- [x] Markdown note created in `vault/tasks/`
+- [x] `librarian.search("optics lens")` returns relevant past tasks
 
 ---
 
@@ -242,6 +250,11 @@
   - Trade-off: Research/content/report output là baseline local; có thể nâng cấp từng worker sang provider/tool-backed flow sau khi M3/M4 credentials ổn định.
   - Có thể revisit?: yes
 
+**D11 (2026-05-10):** Runtime singleton enables Knowledge Librarian, direct `ChiefOfStaff(...)` remains opt-in.
+  - Lý do: Web/runtime path cần auto archive sau QA pass, nhưng unit/custom constructor không nên tự ghi DB/vault nếu caller chưa inject session/vault.
+  - Trade-off: Code dùng `ChiefOfStaff(...)` trực tiếp phải truyền `librarian=KnowledgeLibrarian(...)` nếu muốn archive.
+  - Có thể revisit?: yes
+
 ---
 
 ## ⚠️ Blockers
@@ -264,9 +277,9 @@
 
 ## 📈 Metrics
 
-- **Tổng số commits:** 9 milestone commits after M9 commit
+- **Tổng số commits:** 10 milestone commits after M10 commit
 - **Test coverage hiện tại:** Not measured yet; focused unit suite passing
-- **Lines of code (impl):** M0-M9 implementation added
+- **Lines of code (impl):** M0-M10 implementation added
 - **API keys configured:** TBD (Sếp Linh điền `.env`)
 
 ---
