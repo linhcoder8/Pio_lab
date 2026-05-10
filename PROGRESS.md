@@ -31,6 +31,14 @@
 
 ## 📝 Detailed log
 
+### 2026-05-10 — Telegram live smoke prepared
+- ✅ `.env` has `TELEGRAM_BOT_TOKEN` and `TELEGRAM_ALLOWED_USERS` configured.
+- ✅ `python scripts/smoke_telegram.py` validates Telegram `getMe` successfully for `@Chief_pio_bot` without printing the token.
+- ✅ Added `scripts/smoke_telegram.py` for repeatable token/send smoke and `scripts/start_telegram_bot.py` for local polling mode.
+- ✅ `.env.example` keeps Telegram values blank and includes `TELEGRAM_TEST_CHAT_ID` placeholder; real secrets stay in `.env` only.
+- 🧪 Tests: full `python -m pytest -q` = 66 pass, 2 skipped; full `python -m ruff check .` pass.
+- ⏭️ Next: start `python scripts/start_telegram_bot.py`, send a message to the bot from the allowed Telegram account, then optionally run `python scripts/smoke_telegram.py --send-test --chat-id <chat_id>`.
+
 ### 2026-05-10 — MVP hardening: full-flow integration tests
 - ✅ Replaced placeholder `tests/integration/test_full_flow.py` with real end-to-end coverage.
 - ✅ Research flow now verifies Chief of Staff → RESEARCH.optics → QA → Knowledge Librarian archive → Obsidian note → librarian search → lifecycle trace linked to archived task.
@@ -304,7 +312,7 @@
 - **Tổng số commits:** 11 milestone commits after M11 commit
 - **Test coverage hiện tại:** Not measured yet; unit + local integration suite passing
 - **Lines of code (impl):** M0-M11 implementation added
-- **API keys configured:** TBD (Sếp Linh điền `.env`)
+- **API keys configured:** Telegram bot token configured in `.env`; provider keys TBD
 - **TODO Phase 1 markers:** 0 in `pio_lab`, `tests`, `scripts`
 
 ---

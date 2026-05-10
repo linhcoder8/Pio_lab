@@ -40,6 +40,7 @@ class Settings(BaseSettings):
 
     telegram_bot_token: str | None = Field(default=None)
     telegram_allowed_users: str | None = Field(default=None)
+    telegram_test_chat_id: str | None = Field(default=None)
     discord_bot_token: str | None = Field(default=None)
     discord_guild_id: str | None = Field(default=None)
     zalo_oa_id: str | None = Field(default=None)
