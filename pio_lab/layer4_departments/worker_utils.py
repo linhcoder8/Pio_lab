@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
 from pio_lab.security.enforcer import SecurityEnforcer, enforcer
 from pio_lab.security.policy_loader import PROJECT_ROOT
+from pio_lab.utils.env import get_settings
 
 
 def resolve_output_dir(
@@ -30,4 +32,38 @@ def count_words(text: str) -> int:
     return len([word for word in text.split() if word.strip()])
 
 
-__all__ = ["count_words", "resolve_output_dir"]
+def should_use_provider_worker(
+    task: dict[str, Any],
+    context: dict[str, Any] | None = None,
+) -> bool:
+    """Return whether a concrete worker should delegate text generation to ProviderRouter."""
+    context = context or {}
+    explicit = task.get("worker_mode") or context.get("worker_mode")
+    if explicit:
+        return str(explicit).strip().lower() in {"provider", "live", "llm"}
+    mode = (
+        os.environ["DEPARTMENT_WORKER_MODE"]
+        if "DEPARTMENT_WORKER_MODE" in os.environ
+        else get_settings().department_worker_mode
+    )
+    return mode.strip().lower() in {
+        "provider",
+        "live",
+        "llm",
+    }
+
+
+def provider_task(
+    task: dict[str, Any],
+    *,
+    instruction: str,
+) -> dict[str, Any]:
+    """Append provider-mode instructions without mutating the caller's task."""
+    user_input = str(task.get("input") or task.get("task") or "")
+    return {
+        **task,
+        "input": f"{user_input}\n\nProvider-mode instructions:\n{instruction}".strip(),
+    }
+
+
+__all__ = ["count_words", "provider_task", "resolve_output_dir", "should_use_provider_worker"]

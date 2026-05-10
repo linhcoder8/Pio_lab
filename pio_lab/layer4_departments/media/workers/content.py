@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from pio_lab.layer4_departments.base.worker_base import GenericWorker
-from pio_lab.layer4_departments.worker_utils import count_words
+from pio_lab.layer4_departments.worker_utils import count_words, provider_task, should_use_provider_worker
 
 
 class ContentWorker(GenericWorker):
@@ -17,6 +17,18 @@ class ContentWorker(GenericWorker):
         context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Return a blog article of at least 500 words."""
+        if should_use_provider_worker(task, context):
+            return await super().run(
+                provider_task(
+                    task,
+                    instruction=(
+                        "Write a polished blog article. Use clear headings and practical prose. "
+                        "Do not claim that files were written."
+                    ),
+                ),
+                context,
+            )
+
         topic = str(task.get("topic") or task.get("input") or task.get("task") or "AI operations")
         article = _build_blog(topic)
         word_count = count_words(article)

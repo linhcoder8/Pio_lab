@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     postgres_password: str = "changeme"
 
     obsidian_vault_path: str = "./vault"
+    department_worker_mode: str = "deterministic"
+    provider_routing_profile: str | None = Field(default=None)
 
     anthropic_api_key: str | None = Field(default=None)
     anthropic_api_key_2: str | None = Field(default=None)

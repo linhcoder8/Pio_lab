@@ -136,6 +136,7 @@ def test_router_registers_codex_oauth_account_when_codex_auth_exists(
 
 def test_resolve_chain_uses_routing_rule_and_default(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setenv("PROVIDER_ROUTING_PROFILE", "")
     router = ProviderRouter()
     router.load()
 
@@ -148,11 +149,25 @@ def test_resolve_chain_uses_routing_rule_and_default(monkeypatch: pytest.MonkeyP
     assert default_chain[0].model == "claude-sonnet-4-6"
 
 
+def test_codex_oauth_routing_profile_promotes_text_departments(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("PROVIDER_ROUTING_PROFILE", "codex_oauth")
+    router = ProviderRouter()
+    router.load()
+
+    research_chain = router._resolve_chain("research.optics")
+
+    assert research_chain[0].provider == "codex"
+    assert research_chain[0].model == "gpt-4o"
+
+
 @pytest.mark.asyncio
 async def test_router_call_uses_claude_adapter_and_logs_trace(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setenv("PROVIDER_ROUTING_PROFILE", "")
     adapter = FakeProvider(provider="claude")
     trace_logger = FakeTraceLogger()
     router = ProviderRouter(adapters={"claude": adapter}, trace_logger=trace_logger)  # type: ignore[arg-type]
@@ -224,6 +239,7 @@ async def test_router_falls_back_from_claude_to_codex(monkeypatch: pytest.Monkey
 @pytest.mark.asyncio
 async def test_router_marks_quota_exhausted(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setenv("PROVIDER_ROUTING_PROFILE", "")
     adapter = FakeProvider(
         provider="claude",
         error=QuotaExceededError(

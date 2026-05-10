@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -20,6 +21,7 @@ from pio_lab.providers.errors import ProviderError, ProviderUnavailableError, Qu
 from pio_lab.providers.status_tracker import StatusTracker
 from pio_lab.providers.token_tracker import TokenTracker
 from pio_lab.utils.config_loader import load_providers_config
+from pio_lab.utils.env import get_settings
 from pio_lab.utils.logging import logger
 
 
@@ -155,7 +157,7 @@ class ProviderRouter:
             self.load()
         assert self.config is not None
 
-        raw_chain = self.config.get("routing_rules", {}).get(
+        raw_chain = self._profile_chain(routing_key) or self.config.get("routing_rules", {}).get(
             routing_key,
             self.config.get("default_chain", []),
         )
@@ -163,6 +165,30 @@ class ProviderRouter:
             RoutingTarget(provider=item["provider"], model=item["model"])
             for item in raw_chain
         ]
+
+    def _profile_chain(self, routing_key: str) -> list[dict[str, str]]:
+        if self.config is None:
+            self.load()
+        assert self.config is not None
+
+        profile_name = (
+            os.environ["PROVIDER_ROUTING_PROFILE"]
+            if "PROVIDER_ROUTING_PROFILE" in os.environ
+            else get_settings().provider_routing_profile or ""
+        ).strip()
+        if not profile_name:
+            return []
+        profiles = self.config.get("routing_profiles", {})
+        if not isinstance(profiles, dict):
+            return []
+        profile = profiles.get(profile_name, {})
+        if not isinstance(profile, dict):
+            return []
+        routing_rules = profile.get("routing_rules", {})
+        if not isinstance(routing_rules, dict):
+            return []
+        raw_chain = routing_rules.get(routing_key, [])
+        return raw_chain if isinstance(raw_chain, list) else []
 
     def _init_adapters(self) -> None:
         """Initialize all Phase 1 provider adapters."""

@@ -41,9 +41,11 @@
 - ✅ Live archive verified in Obsidian vault under `vault/tasks/2026-05-10/*.md`.
 - ✅ PR #2 merged to `main`; local `main` is up to date at merge commit `eb081d2`.
 - ✅ Real provider smoke through Codex OAuth passes: `RUN_REAL_PROVIDER_TESTS=1 python -m pytest tests/integration/test_codex_oauth_provider.py -v`.
+- ✅ Added opt-in live department mode: `DEPARTMENT_WORKER_MODE=provider` makes text workers call ProviderRouter; `PROVIDER_ROUTING_PROFILE=codex_oauth` promotes selected text paths to Codex OAuth.
+- ✅ Live provider-backed department smoke passes: `RUN_REAL_PROVIDER_TESTS=1 python -m pytest tests/integration/test_live_provider_departments.py -v` verifies `RESEARCH.optics` output comes from Codex OAuth.
 - ✅ `.env.example` keeps Telegram values blank and includes `TELEGRAM_TEST_CHAT_ID` placeholder; real secrets stay in `.env` only.
-- 🧪 Tests: full `python -m pytest -q` = 67 pass, 2 skipped; full `python -m ruff check .` pass.
-- ⏭️ Next: configure provider API keys or promote Codex OAuth into selected routing paths, then live-smoke provider-backed department outputs.
+- 🧪 Tests: full `python -m pytest -q` = 68 pass, 3 skipped; full `python -m ruff check .` pass.
+- ⏭️ Next: restart Telegram bot with `.env` live mode, then send a research/content task and confirm archive output text is provider-backed.
 
 ### 2026-05-10 — MVP hardening: full-flow integration tests
 - ✅ Replaced placeholder `tests/integration/test_full_flow.py` with real end-to-end coverage.
@@ -318,7 +320,7 @@
 - **Tổng số commits:** 11 milestone commits after M11 commit
 - **Test coverage hiện tại:** Not measured yet; unit + local integration suite passing
 - **Lines of code (impl):** M0-M11 implementation added
-- **API keys configured:** Telegram bot token configured in `.env`; Codex OAuth logged in; provider API keys TBD
+- **API keys configured:** Telegram bot token configured in `.env`; Codex OAuth logged in and selected by `.env` live routing profile; provider API keys TBD
 - **TODO Phase 1 markers:** 0 in `pio_lab`, `tests`, `scripts`
 
 ---

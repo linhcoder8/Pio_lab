@@ -139,6 +139,19 @@ routing_rules:
     - { provider: codex, model: o1-preview }
     - { provider: gemini, model: gemini-2.0-pro }
 
+# --- Optional routing profiles ---
+# Enable with PROVIDER_ROUTING_PROFILE=codex_oauth.
+# Useful while cloud API keys are deferred but local `codex login` is available.
+routing_profiles:
+  codex_oauth:
+    routing_rules:
+      research.optics:
+        - { provider: codex, model: gpt-4o }
+      media.content:
+        - { provider: codex, model: gpt-4o }
+      qa.qa_reviewer:
+        - { provider: codex, model: gpt-4o }
+
 # --- Quota & rotation ---
 quota_management:
   check_interval_seconds: 60
