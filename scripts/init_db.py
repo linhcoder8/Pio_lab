@@ -7,10 +7,16 @@ Usage:
 from __future__ import annotations
 
 import asyncio
+import sys
+from pathlib import Path
 
-from pio_lab.memory.postgres.database import create_all, dispose_engine, init_engine
-from pio_lab.utils.env import get_settings
-from pio_lab.utils.logging import logger, setup_logging
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from pio_lab.memory.postgres.database import create_all, dispose_engine, init_engine  # noqa: E402
+from pio_lab.utils.env import get_settings  # noqa: E402
+from pio_lab.utils.logging import logger, setup_logging  # noqa: E402
 
 
 async def main() -> None:

@@ -11,6 +11,7 @@ from fastapi import APIRouter, Request, Response, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
+from pio_lab.layer3_chief_of_staff.chief_of_staff import ChiefOfStaff, get_chief_of_staff
 from pio_lab.security.enforcer import SecurityEnforcer, SecurityError, enforcer
 from pio_lab.utils.env import Settings, get_settings
 from pio_lab.utils.helpers import gen_request_id, utc_now
@@ -44,9 +45,11 @@ class WebAdapter:
         *,
         settings: Settings | None = None,
         security: SecurityEnforcer | None = None,
+        chief_of_staff: ChiefOfStaff | None = None,
     ) -> None:
         self.settings = settings or get_settings()
         self.security = security or enforcer
+        self.chief_of_staff = chief_of_staff or get_chief_of_staff()
         self.router = APIRouter()
         self._register_routes()
 
@@ -83,14 +86,21 @@ class WebAdapter:
         return response
 
     async def handle_chat(self, payload: ChatRequest) -> ChatResponse:
-        """Return a placeholder echo response until M7 wires Chief of Staff."""
+        """Route a web chat message through the Chief of Staff."""
         try:
             self.security.require_crypto_safe_text(payload.message)
         except SecurityError as error:
             reply = f"Blocked by security policy: {error}"
         else:
-            safe_message = self.security.mask_secrets_in_output(payload.message)
-            reply = f"Echo: {safe_message}"
+            result = await self.chief_of_staff.run(
+                {
+                    "input": payload.message,
+                    "channel": payload.channel,
+                    "user_id": payload.user_id,
+                }
+            )
+            reply = self._format_chief_response(result)
+            reply = self.security.mask_secrets_in_output(reply)
 
         return ChatResponse(
             message_id=gen_request_id("webmsg"),
@@ -98,6 +108,15 @@ class WebAdapter:
             channel=payload.channel,
             created_at=utc_now().isoformat(),
         )
+
+    def _format_chief_response(self, result: dict[str, Any]) -> str:
+        if result.get("status") == "waiting_approval":
+            approval = result.get("approval") or {}
+            return str(approval.get("prompt") or "Yêu cầu cần phê duyệt của Sếp Linh.")
+        final_output = result.get("final_output") or {}
+        if isinstance(final_output, dict) and final_output.get("text"):
+            return str(final_output["text"])
+        return str(result.get("reply") or result.get("status") or "Pio_lab handled the request.")
 
     def _register_routes(self) -> None:
         @self.router.get("/", response_class=HTMLResponse)

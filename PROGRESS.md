@@ -4,7 +4,7 @@
 
 **Phase hiện tại:** MVP Phase 1
 **Bắt đầu:** 2026-05-04
-**Last update:** 2026-05-05 (M6 Web Channel verified)
+**Last update:** 2026-05-10 (M7 Chief of Staff done)
 
 ---
 
@@ -13,14 +13,14 @@
 | # | Milestone | Status | Note |
 |---|---|---|---|
 | M0 | Foundation | ✅ Done | Completed as prerequisite for M1 |
-| M1 | Memory · Postgres | ✅ Done | Unit verified; Docker daemon unavailable for live smoke |
+| M1 | Memory · Postgres | ✅ Done | Unit + live Postgres smoke verified |
 | M2 | Memory · Obsidian | ✅ Done | Unit verified |
 | M3 | Provider Router (Claude) | ✅ Done | Real provider smoke deferred by owner |
 | M4 | Provider Router · 4 còn lại | ✅ Done | Adapter infrastructure unit verified; real providers deferred |
 | M5 | Security Enforcer | ✅ Done | Unit verified |
 | M6 | Channel · Web (test bed) | ✅ Done | Verified via FastAPI server; bash unavailable in current Windows shell |
-| M7 | Chief of Staff (LangGraph) | ⏸️ Pending | Next |
-| M8 | Department + Worker base | ⏸️ Pending | |
+| M7 | Chief of Staff (LangGraph) | ✅ Done | LangGraph run/replan/approval verified |
+| M8 | Department + Worker base | ⏸️ Pending | Next |
 | M9 | 5 Departments cụ thể | ⏸️ Pending | |
 | M10 | Knowledge Librarian | ⏸️ Pending | |
 | M11 | Channels còn lại + Console UI | ⏸️ Pending | |
@@ -30,6 +30,25 @@
 ---
 
 ## 📝 Detailed log
+
+### 2026-05-10 — Milestone M7 done
+- ✅ `ChiefOfStaff.run({"input": "hello"})` completes a LangGraph execution.
+- ✅ Chief of Staff lifecycle trace is logged into Postgres `traces`.
+- ✅ Replan loop triggers on mocked QA `NEEDS_FIX`, then retries and completes after QA `PASS`.
+- ✅ Human approval pauses the graph with LangGraph interrupt and resumes after approval.
+- ✅ Web chat now routes through Chief of Staff instead of M6 echo.
+- 📝 Decisions: M7 uses a deterministic local fallback when no provider account is available, so the graph and Web test bed remain usable while real provider keys are deferred.
+- 🧪 Tests: 10 pass for focused M7/Web suite; full `tests/unit/` = 43 pass; full `ruff check pio_lab tests` pass.
+- 🧪 Smoke: default `ChiefOfStaff().run({"input": "hello"})` returned `done`; Postgres trace query verified `chief_of_staff/internal/langgraph`.
+- ⏭️ Next: M8
+
+### 2026-05-10 — M1 live Postgres smoke unblocked
+- ✅ Docker Desktop daemon is running.
+- ✅ `docker compose up -d postgres` starts `pio_lab_postgres` and container health is `healthy`.
+- ✅ `python scripts/init_db.py` initializes the Postgres schema successfully.
+- ✅ Verified tables in Postgres: `conversations`, `provider_accounts`, `providers`, `tasks`, `traces`.
+- 📝 Decisions: `scripts/init_db.py` now inserts the repo root into `sys.path` so the documented command imports this checkout even if another editable `pio_lab` install exists on the machine.
+- ⚠️ Non-blocking note: Docker Compose warns that the top-level `version` field is obsolete.
 
 ### 2026-05-05 — Milestone M6 done
 - ✅ FastAPI app boots from `pio_lab.main:app`.
@@ -106,13 +125,13 @@
 
 ## 🚀 Current milestone
 
-**Đang ở:** M7 — next
+**Đang ở:** M8 — next
 
-### Acceptance criteria — M7
-- [ ] `chief_of_staff.run({"input":"hello"})` complete graph execution
-- [ ] Trace logged vào Postgres
-- [ ] Replan loop trigger được khi QA fail (test bằng mock)
-- [ ] Human approval pause graph + resume sau approve
+### Acceptance criteria — M8
+- [ ] Registry load 5 phòng ban từ `config/departments/_registry.yaml`
+- [ ] `dept.run(task)` chọn worker đúng
+- [ ] `worker.run(task)` complete với LLM call + tool use
+- [ ] Trace logged
 
 ---
 
@@ -171,6 +190,11 @@
   - Trade-off: No session revocation list yet; `/logout` clears the browser cookie.
   - Có thể revisit?: yes
 
+**D7 (2026-05-10):** M7 keeps a deterministic local fallback when provider accounts are unavailable.
+  - Lý do: Sếp Linh đã defer provider thật đến sau khi app hoàn thành, nhưng M7/Web cần chạy được graph end-to-end ngay.
+  - Trade-off: Fast-path answer can be placeholder until API keys are configured; all real LLM calls still go through ProviderRouter when credentials exist.
+  - Có thể revisit?: yes
+
 ---
 
 ## ⚠️ Blockers
@@ -184,20 +208,20 @@
 >   - Mô tả: ...
 >   - Cần gì để unblock: ...
 
-**B1 (2026-05-05):** Docker daemon unavailable for live Postgres smoke.
+**B1 (2026-05-05, resolved 2026-05-10):** Docker daemon unavailable for live Postgres smoke.
   - Tại milestone: M1
   - Mô tả: `docker-compose up -d postgres` cannot connect to `npipe:////./pipe/docker_engine`.
-  - Cần gì để unblock: Start Docker Desktop / Docker daemon, then rerun `docker-compose up -d postgres` and `python scripts/init_db.py`.
+  - Resolution: Docker Desktop started, `pio_lab_postgres` is healthy, `python scripts/init_db.py` completed, and Postgres tables were verified.
 
 ---
 
 ## 📈 Metrics
 
-- **Tổng số commits:** 6 milestone commits after M6 commit
+- **Tổng số commits:** 7 milestone commits after M7 commit
 - **Test coverage hiện tại:** Not measured yet; focused unit suite passing
 - **Lines of code (impl):** M0-M6 implementation added
 - **API keys configured:** TBD (Sếp Linh điền `.env`)
 
 ---
 
-*Cập nhật cuối: 2026-05-05 bởi Codex.*
+*Cập nhật cuối: 2026-05-10 bởi Codex.*

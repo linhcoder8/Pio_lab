@@ -8,9 +8,17 @@ from pio_lab.layer2_runtime.openclaw import create_app
 from pio_lab.utils.env import Settings
 
 
+class FakeChiefOfStaff:
+    async def run(self, payload):
+        return {
+            "status": "done",
+            "final_output": {"text": f"CoS: {payload['input']}"},
+        }
+
+
 def _client() -> TestClient:
     settings = Settings(web_ui_admin_password="test-password", web_ui_secret="test-secret")
-    return TestClient(create_app(settings))
+    return TestClient(create_app(settings, chief_of_staff=FakeChiefOfStaff()))
 
 
 def test_root_requires_authentication() -> None:
@@ -51,7 +59,7 @@ def test_chat_page_loads_after_login() -> None:
     assert "/api/chat" in response.text
 
 
-def test_api_chat_echoes_authenticated_message_and_masks_secret() -> None:
+def test_api_chat_routes_authenticated_message_and_masks_secret() -> None:
     client = _client()
     client.post(
         "/login",
@@ -66,7 +74,7 @@ def test_api_chat_echoes_authenticated_message_and_masks_secret() -> None:
 
     assert response.status_code == 200
     data = response.json()
-    assert data["reply"].startswith("Echo: Say hi")
+    assert data["reply"].startswith("CoS: Say hi")
     assert "sk-abcdefghijklmnopqrstuvwxyz123456" not in data["reply"]
     assert "sk-...3456" in data["reply"]
 
@@ -79,7 +87,7 @@ def test_api_chat_rejects_unauthenticated_message() -> None:
     assert response.status_code == 401
 
 
-def test_websocket_echoes_authenticated_message() -> None:
+def test_websocket_routes_authenticated_message() -> None:
     client = _client()
     client.post(
         "/login",
@@ -91,4 +99,4 @@ def test_websocket_echoes_authenticated_message() -> None:
         websocket.send_json({"message": "hello"})
         data = websocket.receive_json()
 
-    assert data["reply"] == "Echo: hello"
+    assert data["reply"] == "CoS: hello"
