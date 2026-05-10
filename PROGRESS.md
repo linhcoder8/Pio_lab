@@ -39,9 +39,11 @@
 - ✅ Telegram live full-flow works from allowed account: inbound Telegram → Chief of Staff → department/QA → reply.
 - ✅ Live archive verified in Postgres `tasks`: 4 rows with `channel=telegram`, `status=done`, latest IDs include `c2801cb1-9470-477b-b069-9fa5741eafda`.
 - ✅ Live archive verified in Obsidian vault under `vault/tasks/2026-05-10/*.md`.
+- ✅ PR #2 merged to `main`; local `main` is up to date at merge commit `eb081d2`.
+- ✅ Real provider smoke through Codex OAuth passes: `RUN_REAL_PROVIDER_TESTS=1 python -m pytest tests/integration/test_codex_oauth_provider.py -v`.
 - ✅ `.env.example` keeps Telegram values blank and includes `TELEGRAM_TEST_CHAT_ID` placeholder; real secrets stay in `.env` only.
 - 🧪 Tests: full `python -m pytest -q` = 67 pass, 2 skipped; full `python -m ruff check .` pass.
-- ⏭️ Next: create/merge PR, then configure provider keys and live smoke real provider-backed department outputs.
+- ⏭️ Next: configure provider API keys or promote Codex OAuth into selected routing paths, then live-smoke provider-backed department outputs.
 
 ### 2026-05-10 — MVP hardening: full-flow integration tests
 - ✅ Replaced placeholder `tests/integration/test_full_flow.py` with real end-to-end coverage.
@@ -316,7 +318,7 @@
 - **Tổng số commits:** 11 milestone commits after M11 commit
 - **Test coverage hiện tại:** Not measured yet; unit + local integration suite passing
 - **Lines of code (impl):** M0-M11 implementation added
-- **API keys configured:** Telegram bot token configured in `.env`; provider keys TBD
+- **API keys configured:** Telegram bot token configured in `.env`; Codex OAuth logged in; provider API keys TBD
 - **TODO Phase 1 markers:** 0 in `pio_lab`, `tests`, `scripts`
 
 ---
