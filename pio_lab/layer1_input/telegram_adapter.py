@@ -6,6 +6,7 @@ from typing import Any
 
 from pio_lab.layer1_input.channel_router import ChannelReply, ChannelRouter
 from pio_lab.utils.env import Settings, get_settings
+from pio_lab.utils.helpers import utc_now
 
 
 class TelegramAdapter:
@@ -38,28 +39,23 @@ class TelegramAdapter:
         metadata: dict[str, Any] | None = None,
     ) -> ChannelReply:
         """Process one Telegram text message."""
+        command_reply = _command_response(text, user_id=user_id)
+        if command_reply and text.strip().split(maxsplit=1)[0].lower() == "/whoami":
+            return _static_reply(user_id=user_id, text=command_reply, status="command")
+
         if not self.is_allowed_user(user_id):
-            return ChannelReply(
-                message_id="telegram_forbidden",
-                channel="telegram",
-                user_id=str(user_id),
-                text="Telegram user is not allowed.",
-                chunks=["Telegram user is not allowed."],
-                created_at="",
-                raw_result={"status": "forbidden"},
+            return _static_reply(
+                user_id=user_id,
+                text=(
+                    "Telegram user is not allowed.\n"
+                    f"Your Telegram user id: {user_id}\n"
+                    "Add this id to TELEGRAM_ALLOWED_USERS in .env, then restart the bot."
+                ),
+                status="forbidden",
             )
 
-        normalized_text = _command_response(text) or text
-        if normalized_text != text:
-            return ChannelReply(
-                message_id="telegram_command",
-                channel="telegram",
-                user_id=str(user_id),
-                text=normalized_text,
-                chunks=[normalized_text],
-                created_at="",
-                raw_result={"status": "command"},
-            )
+        if command_reply:
+            return _static_reply(user_id=user_id, text=command_reply, status="command")
 
         reply = await self.channel_router.handle_text(
             channel="telegram",
@@ -113,7 +109,7 @@ def _parse_allowed_users(raw: str | None) -> set[str]:
     return {item.strip() for item in raw.split(",") if item.strip()}
 
 
-def _command_response(text: str) -> str | None:
+def _command_response(text: str, *, user_id: int | str) -> str | None:
     command = text.strip().split(maxsplit=1)[0].lower()
     if command == "/start":
         return "Pio_lab Telegram đã sẵn sàng."
@@ -121,7 +117,21 @@ def _command_response(text: str) -> str | None:
         return "Gửi yêu cầu cho Pio_lab; hệ thống sẽ điều phối qua Chief of Staff."
     if command == "/status":
         return "Pio_lab online."
+    if command == "/whoami":
+        return f"Your Telegram user id: {user_id}"
     return None
+
+
+def _static_reply(*, user_id: int | str, text: str, status: str) -> ChannelReply:
+    return ChannelReply(
+        message_id=f"telegram_{status}",
+        channel="telegram",
+        user_id=str(user_id),
+        text=text,
+        chunks=[text],
+        created_at=utc_now().isoformat(),
+        raw_result={"status": status},
+    )
 
 
 __all__ = ["TelegramAdapter"]

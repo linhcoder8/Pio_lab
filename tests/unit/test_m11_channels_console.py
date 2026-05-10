@@ -73,6 +73,17 @@ async def test_telegram_rejects_user_outside_whitelist() -> None:
     reply = await adapter.handle_text(user_id=7, text="hello")
 
     assert reply.raw_result["status"] == "forbidden"
+    assert "Your Telegram user id: 7" in reply.text
+
+
+@pytest.mark.asyncio
+async def test_telegram_whoami_works_even_outside_whitelist() -> None:
+    adapter = TelegramAdapter(settings=Settings(telegram_allowed_users="42"))
+
+    reply = await adapter.handle_text(user_id=7, text="/whoami")
+
+    assert reply.raw_result["status"] == "command"
+    assert reply.text == "Your Telegram user id: 7"
 
 
 @pytest.mark.asyncio
