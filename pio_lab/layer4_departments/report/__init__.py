@@ -1,0 +1,2 @@
+"""REPORT department concrete workers."""
+

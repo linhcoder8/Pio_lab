@@ -6,9 +6,11 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from pio_lab.layer4_departments.base.department_base import DepartmentConfig, GenericDepartment
 from pio_lab.layer4_departments.base.worker_base import GenericWorker, ToolExecutor, WorkerConfig
+from pio_lab.memory.postgres.traces import TraceLogger
 from pio_lab.providers.router import ProviderRouter, get_router
 from pio_lab.utils.config_loader import CONFIG_ROOT
 
@@ -25,10 +27,14 @@ class DepartmentRegistry:
         registry_path: str | Path | None = None,
         router: ProviderRouter | None = None,
         tool_executor: ToolExecutor | None = None,
+        trace_logger: TraceLogger | None = None,
+        trace_session: AsyncSession | None = None,
     ) -> None:
         self.registry_path = Path(registry_path or DEPARTMENTS_ROOT / "_registry.yaml")
         self.router = router or get_router()
         self.tool_executor = tool_executor
+        self.trace_logger = trace_logger or TraceLogger()
+        self.trace_session = trace_session
         self.departments: dict[str, GenericDepartment] = {}
 
     def load_all(self) -> DepartmentRegistry:
@@ -73,11 +79,7 @@ class DepartmentRegistry:
         department_config = DepartmentConfig.from_mapping(department_data)
         worker_configs = self._load_worker_configs(department_data, config_path)
         workers = {
-            worker_config.id: GenericWorker(
-                worker_config,
-                router=self.router,
-                tool_executor=self.tool_executor,
-            )
+            worker_config.id: self._build_worker_from_config(worker_config)
             for worker_config in worker_configs
         }
         return GenericDepartment(department_config, workers=workers)
@@ -98,10 +100,16 @@ class DepartmentRegistry:
         return worker_configs
 
     def _build_worker(self, worker_config: dict[str, Any]) -> GenericWorker:
-        return GenericWorker(
-            WorkerConfig.from_mapping(worker_config),
+        return self._build_worker_from_config(WorkerConfig.from_mapping(worker_config))
+
+    def _build_worker_from_config(self, worker_config: WorkerConfig) -> GenericWorker:
+        worker_class = _worker_class(worker_config.department, worker_config.id)
+        return worker_class(
+            worker_config,
             router=self.router,
             tool_executor=self.tool_executor,
+            trace_logger=self.trace_logger,
+            trace_session=self.trace_session,
         )
 
 
@@ -129,6 +137,31 @@ def _resolve_relative_to_file(path: str | Path, file_path: Path) -> Path:
     if candidate.is_absolute():
         return candidate
     return (file_path.parent / candidate).resolve()
+
+
+def _worker_class(department_id: str, worker_id: str) -> type[GenericWorker]:
+    key = (department_id, worker_id)
+    if key == ("coder", "backend"):
+        from pio_lab.layer4_departments.coder.workers.backend import BackendWorker
+
+        return BackendWorker
+    if key == ("research", "optics"):
+        from pio_lab.layer4_departments.research.workers.optics import OpticsWorker
+
+        return OpticsWorker
+    if key == ("media", "content"):
+        from pio_lab.layer4_departments.media.workers.content import ContentWorker
+
+        return ContentWorker
+    if key == ("report", "slide_word_web"):
+        from pio_lab.layer4_departments.report.workers.slide_word_web import SlideWordWebWorker
+
+        return SlideWordWebWorker
+    if key == ("qa", "qa_reviewer"):
+        from pio_lab.layer4_departments.qa.workers.qa_reviewer import QaReviewerWorker
+
+        return QaReviewerWorker
+    return GenericWorker
 
 
 __all__ = ["DEPARTMENTS_ROOT", "DepartmentRegistry", "PROJECT_ROOT"]

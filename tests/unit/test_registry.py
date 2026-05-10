@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+import shutil
+from collections.abc import Iterator
+from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 import pytest
 
 from pio_lab.core.registry import DepartmentRegistry
 from pio_lab.providers.adapters.base_provider import BaseProvider
 from pio_lab.providers.router import ProviderRouter
+from pio_lab.security.policy_loader import PROJECT_ROOT
 
 
 class FakeProvider(BaseProvider):
@@ -31,6 +36,19 @@ class FakeProvider(BaseProvider):
             "model": model,
             "raw": None,
         }
+
+
+class FakeTraceLogger:
+    async def log(self, **kwargs: Any) -> None:
+        return None
+
+
+@pytest.fixture
+def output_root() -> Iterator[Path]:
+    root = PROJECT_ROOT / "tmp" / "tests" / f"registry_{uuid4().hex}"
+    yield root
+    if root.exists():
+        shutil.rmtree(root)
 
 
 def test_registry_loads_5_departments() -> None:
@@ -70,8 +88,8 @@ def test_add_department_at_runtime() -> None:
 
 
 @pytest.mark.asyncio
-async def test_department_run_selects_backend_worker() -> None:
-    """Coder department chọn backend worker cho task API/backend."""
+async def test_department_run_selects_backend_worker(output_root: Path) -> None:
+    """Coder department chọn backend worker và chạy artifact M9."""
     router = ProviderRouter(
         config={
             "providers": {
@@ -84,12 +102,20 @@ async def test_department_run_selects_backend_worker() -> None:
         },
         adapters={"fake": FakeProvider()},
     )
-    registry = DepartmentRegistry(router=router).load_all()
+    registry = DepartmentRegistry(
+        router=router,
+        trace_logger=FakeTraceLogger(),  # type: ignore[arg-type]
+    ).load_all()
     coder = registry.get_department("coder")
 
-    result = await coder.run({"input": "Viết FastAPI backend endpoint POST /users"})
+    result = await coder.run(
+        {
+            "input": "Viết Python function có test",
+            "output_dir": str(output_root / "coder"),
+        }
+    )
 
     assert result["department_id"] == "coder"
     assert result["worker_id"] == "backend"
     assert result["routing_key"] == "coder.backend"
-    assert result["output"] == "Worker completed"
+    assert result["pytest"]["passed"] is True

@@ -4,7 +4,7 @@
 
 **Phase hiện tại:** MVP Phase 1
 **Bắt đầu:** 2026-05-04
-**Last update:** 2026-05-10 (M8 Department + Worker base done)
+**Last update:** 2026-05-10 (M9 concrete departments done)
 
 ---
 
@@ -21,8 +21,8 @@
 | M6 | Channel · Web (test bed) | ✅ Done | Verified via FastAPI server; bash unavailable in current Windows shell |
 | M7 | Chief of Staff (LangGraph) | ✅ Done | LangGraph run/replan/approval verified |
 | M8 | Department + Worker base | ✅ Done | Registry + GenericDepartment/Worker verified |
-| M9 | 5 Departments cụ thể | ⏸️ Pending | Next |
-| M10 | Knowledge Librarian | ⏸️ Pending | |
+| M9 | 5 Departments cụ thể | ✅ Done | Concrete workers + CoS dispatch verified |
+| M10 | Knowledge Librarian | ⏸️ Pending | Next |
 | M11 | Channels còn lại + Console UI | ⏸️ Pending | |
 
 **Status legend:** ⏸️ Pending · 🚧 In progress · ✅ Done · ⚠️ Blocked
@@ -30,6 +30,17 @@
 ---
 
 ## 📝 Detailed log
+
+### 2026-05-10 — Milestone M9 done
+- ✅ `CODER.backend` writes one Python file plus a pytest file, then verifies the artifact with pytest.
+- ✅ `RESEARCH.optics` returns a lens-design summary with stable citations.
+- ✅ `MEDIA.content` generates a blog article with at least 500 words.
+- ✅ `REPORT.slide_word_web` creates a real `.pptx` artifact.
+- ✅ `QA.qa_reviewer` returns PASS/NEEDS_FIX as JSON and surfaces issues.
+- ✅ Chief of Staff dispatch now routes planned department work through `DepartmentRegistry`, then runs QA and reports the non-QA output.
+- 📝 Decisions: M9 concrete workers are deterministic/offline so M3/M4 real provider credentials can remain deferred; provider-backed workers can replace or extend these classes later.
+- 🧪 Tests: focused M9/registry suite = 9 pass; full `python -m pytest -q` = 56 pass, 2 skipped; full `python -m ruff check .` pass.
+- ⏭️ Next: M10
 
 ### 2026-05-10 — Milestone M8 done
 - ✅ `DepartmentRegistry.load_all()` loads 5 active departments and 9 workers from `config/departments/_registry.yaml`.
@@ -144,15 +155,15 @@
 
 ## 🚀 Current milestone
 
-**Đang ở:** M9 — next
+**Đang ở:** M10 — next
 
 ### Acceptance criteria — M9
-- [ ] CODER.backend: write 1 file Python, run pytest pass
-- [ ] RESEARCH.optics: search "lens design" → return summary với citation
-- [ ] MEDIA.content: viết blog 500 từ
-- [ ] REPORT.slide_word_web: tạo file `.pptx` từ data
-- [ ] QA.qa_reviewer: nhận output → trả PASS/NEEDS_FIX với JSON đúng format
-- [ ] End-to-end test: user request → CoS → dispatch → 1 dept → QA → output
+- [x] CODER.backend: write 1 file Python, run pytest pass
+- [x] RESEARCH.optics: search "lens design" → return summary với citation
+- [x] MEDIA.content: viết blog 500 từ
+- [x] REPORT.slide_word_web: tạo file `.pptx` từ data
+- [x] QA.qa_reviewer: nhận output → trả PASS/NEEDS_FIX với JSON đúng format
+- [x] End-to-end test: user request → CoS → dispatch → 1 dept → QA → output
 
 ---
 
@@ -226,6 +237,11 @@
   - Trade-off: Worker selection chưa LLM-based; concrete departments can override or extend in M9.
   - Có thể revisit?: yes
 
+**D10 (2026-05-10):** M9 concrete workers run deterministic/offline implementations first.
+  - Lý do: Sếp Linh đã defer provider thật đến sau khi app hoàn thành, nhưng M9 cần chứng minh dispatch → artifact → QA end-to-end ngay.
+  - Trade-off: Research/content/report output là baseline local; có thể nâng cấp từng worker sang provider/tool-backed flow sau khi M3/M4 credentials ổn định.
+  - Có thể revisit?: yes
+
 ---
 
 ## ⚠️ Blockers
@@ -248,9 +264,9 @@
 
 ## 📈 Metrics
 
-- **Tổng số commits:** 8 milestone commits after M8 commit
+- **Tổng số commits:** 9 milestone commits after M9 commit
 - **Test coverage hiện tại:** Not measured yet; focused unit suite passing
-- **Lines of code (impl):** M0-M8 implementation added
+- **Lines of code (impl):** M0-M9 implementation added
 - **API keys configured:** TBD (Sếp Linh điền `.env`)
 
 ---

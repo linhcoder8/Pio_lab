@@ -80,19 +80,32 @@ class PlanNode:
             "file",
             "code",
             "bug",
+            "lens",
+            "optics",
+            "blog",
+            "content",
+            "pptx",
+            "powerpoint",
+            "slide",
+            "report",
+            "báo cáo",
         )
         return not any(marker in lowered for marker in heavy_markers)
 
     def _classify_intent(self, user_input: str) -> str:
         lowered = user_input.lower()
-        if any(marker in lowered for marker in ("research", "paper", "tìm", "doi")):
+        if "upload" in lowered:
+            return "external_action"
+        if any(marker in lowered for marker in ("research", "paper", "tìm", "doi", "lens")):
+            return "research"
+        if any(marker in lowered for marker in ("optics", "quang")):
             return "research"
         if any(marker in lowered for marker in ("blog", "caption", "content")):
             return "content_creation"
+        if any(marker in lowered for marker in ("pptx", "powerpoint", "slide", "report", "báo cáo")):
+            return "report_creation"
         if any(marker in lowered for marker in ("code", "bug", "fastapi", "python", "function")):
             return "code_generation"
-        if "upload" in lowered:
-            return "external_action"
         return "general_task"
 
     def _build_steps(
@@ -128,6 +141,14 @@ class PlanNode:
         if intent == "content_creation":
             first_step.update(
                 {"department": "media", "worker": "content", "routing_key": "media.content"}
+            )
+        if intent == "report_creation":
+            first_step.update(
+                {
+                    "department": "report",
+                    "worker": "slide_word_web",
+                    "routing_key": "report.slide_word_web",
+                }
             )
         if replan_count > 0 and qa_feedback:
             first_step["task"] = f"{user_input}\n\nQA feedback to fix: {qa_feedback}"

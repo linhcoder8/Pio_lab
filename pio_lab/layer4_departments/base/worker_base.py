@@ -7,8 +7,12 @@ from dataclasses import dataclass, field
 from inspect import isawaitable
 from typing import Any
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from pio_lab.memory.postgres.traces import TraceLogger
 from pio_lab.providers.router import ProviderRouter, get_router
 from pio_lab.security.enforcer import SecurityEnforcer, SecurityError, enforcer
+from pio_lab.utils.logging import logger
 
 ToolExecutor = Callable[[str, Any, dict[str, Any], dict[str, Any]], Any | Awaitable[Any]]
 
@@ -57,11 +61,15 @@ class GenericWorker:
         router: ProviderRouter | None = None,
         tool_executor: ToolExecutor | None = None,
         security: SecurityEnforcer | None = None,
+        trace_logger: TraceLogger | None = None,
+        trace_session: AsyncSession | None = None,
     ) -> None:
         self.config = config
         self.router = router or get_router()
         self.tool_executor = tool_executor or default_tool_executor
         self.security = security or enforcer
+        self.trace_logger = trace_logger or TraceLogger()
+        self.trace_session = trace_session
 
     async def run(
         self,
@@ -138,6 +146,40 @@ class GenericWorker:
             }
             for tool_name in self.config.tools_enabled
         ]
+
+    async def log_internal_trace(
+        self,
+        *,
+        task: dict[str, Any],
+        output: dict[str, Any],
+        status: str = "success",
+        error: str | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> None:
+        """Log deterministic worker execution without requiring a provider call."""
+        try:
+            await self.trace_logger.log(
+                task_id=task.get("trace_task_id"),
+                agent_id=self.agent_id,
+                routing_key=self.config.provider_routing_key,
+                provider="internal",
+                model=f"{self.config.department}.{self.config.id}",
+                messages_in=[{"role": "user", "content": str(task.get("input") or "")}],
+                messages_out=output,
+                tokens_in=0,
+                tokens_out=0,
+                latency_ms=0,
+                status=status,
+                error=error,
+                metadata=metadata,
+                session=self.trace_session,
+            )
+        except Exception as log_error:
+            logger.warning(
+                "Internal worker trace logging failed for {agent_id}: {error}",
+                agent_id=self.agent_id,
+                error=log_error,
+            )
 
     async def _execute_tool_calls(
         self,

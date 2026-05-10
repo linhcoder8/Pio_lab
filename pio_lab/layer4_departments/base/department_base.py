@@ -75,13 +75,17 @@ class GenericDepartment:
         """Select a worker, run it, and return an aggregated department result."""
         worker = self.select_worker(task)
         worker_result = await worker.run(task, context or {})
-        return {
+        result = {
             "department_id": self.config.id,
             "worker_id": worker.config.id,
             "routing_key": worker.config.provider_routing_key,
             "output": worker_result.get("output", ""),
             "worker_result": worker_result,
         }
+        for key in ("artifacts", "citations", "word_count", "pytest", "qa", "page_count"):
+            if key in worker_result:
+                result[key] = worker_result[key]
+        return result
 
     def _heuristic_worker_id(self, user_input: str) -> str:
         if self.config.id == "coder":

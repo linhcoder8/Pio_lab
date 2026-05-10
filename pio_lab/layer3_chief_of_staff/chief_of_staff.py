@@ -75,7 +75,12 @@ class ChiefOfStaff:
         )
         builder.add_node(
             "dispatch",
-            DispatchNode(router=self.router, dispatch_handler=dispatch_handler),
+            DispatchNode(
+                router=self.router,
+                dispatch_handler=dispatch_handler,
+                trace_logger=self.trace_logger,
+                trace_session=self.trace_session,
+            ),
         )
         builder.add_node("report", ReportNode(qa_reviewer=qa_reviewer))
         builder.add_node("replan", replan_node)
