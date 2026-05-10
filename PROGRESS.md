@@ -4,7 +4,7 @@
 
 **Phase hiện tại:** MVP Phase 1
 **Bắt đầu:** 2026-05-04
-**Last update:** 2026-05-10 (M7 Chief of Staff done)
+**Last update:** 2026-05-10 (M8 Department + Worker base done)
 
 ---
 
@@ -20,8 +20,8 @@
 | M5 | Security Enforcer | ✅ Done | Unit verified |
 | M6 | Channel · Web (test bed) | ✅ Done | Verified via FastAPI server; bash unavailable in current Windows shell |
 | M7 | Chief of Staff (LangGraph) | ✅ Done | LangGraph run/replan/approval verified |
-| M8 | Department + Worker base | ⏸️ Pending | Next |
-| M9 | 5 Departments cụ thể | ⏸️ Pending | |
+| M8 | Department + Worker base | ✅ Done | Registry + GenericDepartment/Worker verified |
+| M9 | 5 Departments cụ thể | ⏸️ Pending | Next |
 | M10 | Knowledge Librarian | ⏸️ Pending | |
 | M11 | Channels còn lại + Console UI | ⏸️ Pending | |
 
@@ -30,6 +30,16 @@
 ---
 
 ## 📝 Detailed log
+
+### 2026-05-10 — Milestone M8 done
+- ✅ `DepartmentRegistry.load_all()` loads 5 active departments and 9 workers from `config/departments/_registry.yaml`.
+- ✅ `DepartmentRegistry.add_department(...)` supports runtime in-memory department registration.
+- ✅ `GenericDepartment.run(task)` selects the expected worker, including CODER backend for API/backend tasks.
+- ✅ `GenericWorker.run(task)` completes ProviderRouter calls and a minimal tool-use loop via injected tool executor.
+- ✅ Worker provider calls log traces through ProviderRouter/TraceLogger.
+- 📝 Decisions: M8 uses deterministic worker-selection heuristics and a pluggable tool executor; M9 will replace this with concrete department behavior and real skills.
+- 🧪 Tests: focused M8 suite = 5 pass; full `python -m pytest -v` = 50 pass, 2 skipped; full `ruff check pio_lab tests` pass.
+- ⏭️ Next: M9
 
 ### 2026-05-10 — Codex OAuth provider option added
 - ✅ M3/M4 provider credentials now support `credential_mode: codex_oauth`.
@@ -134,13 +144,15 @@
 
 ## 🚀 Current milestone
 
-**Đang ở:** M8 — next
+**Đang ở:** M9 — next
 
-### Acceptance criteria — M8
-- [ ] Registry load 5 phòng ban từ `config/departments/_registry.yaml`
-- [ ] `dept.run(task)` chọn worker đúng
-- [ ] `worker.run(task)` complete với LLM call + tool use
-- [ ] Trace logged
+### Acceptance criteria — M9
+- [ ] CODER.backend: write 1 file Python, run pytest pass
+- [ ] RESEARCH.optics: search "lens design" → return summary với citation
+- [ ] MEDIA.content: viết blog 500 từ
+- [ ] REPORT.slide_word_web: tạo file `.pptx` từ data
+- [ ] QA.qa_reviewer: nhận output → trả PASS/NEEDS_FIX với JSON đúng format
+- [ ] End-to-end test: user request → CoS → dispatch → 1 dept → QA → output
 
 ---
 
@@ -209,6 +221,11 @@
   - Trade-off: API key vẫn là default khuyến nghị cho automation; OAuth cache chạy qua Codex CLI local, chậm hơn SDK và chưa có structured tool loop.
   - Có thể revisit?: yes
 
+**D9 (2026-05-10):** M8 uses deterministic worker-selection heuristics and injected tool execution.
+  - Lý do: M8 cần base Department/Worker chạy được trước khi M9 nối từng phòng ban và skill thật.
+  - Trade-off: Worker selection chưa LLM-based; concrete departments can override or extend in M9.
+  - Có thể revisit?: yes
+
 ---
 
 ## ⚠️ Blockers
@@ -231,9 +248,9 @@
 
 ## 📈 Metrics
 
-- **Tổng số commits:** 7 milestone commits after M7 commit
+- **Tổng số commits:** 8 milestone commits after M8 commit
 - **Test coverage hiện tại:** Not measured yet; focused unit suite passing
-- **Lines of code (impl):** M0-M6 implementation added
+- **Lines of code (impl):** M0-M8 implementation added
 - **API keys configured:** TBD (Sếp Linh điền `.env`)
 
 ---
