@@ -88,6 +88,9 @@ async def db_session() -> AsyncIterator[AsyncSession]:
 
 def test_router_loads_provider_config_and_accounts(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("CODEX_HOME", raising=False)
+    monkeypatch.delenv("CODEX_AUTH_FILE", raising=False)
     router = ProviderRouter()
 
     router.load()
@@ -98,6 +101,37 @@ def test_router_loads_provider_config_and_accounts(monkeypatch: pytest.MonkeyPat
     account = router.account_pool.next_available("claude", "claude-opus-4-6")
     assert account is not None
     assert account.account_id == "claude_main"
+
+
+def test_router_registers_codex_oauth_account_when_codex_auth_exists(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    codex_home = tmp_path / ".codex"
+    codex_home.mkdir()
+    (codex_home / "auth.json").write_text(
+        """
+        {
+          "auth_mode": "chatgpt",
+          "tokens": {
+            "access_token": "oauth-access-token",
+            "refresh_token": "oauth-refresh-token",
+            "account_id": "acct_test"
+          }
+        }
+        """,
+        encoding="utf-8",
+    )
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY_2", raising=False)
+    monkeypatch.setenv("CODEX_HOME", str(codex_home))
+    router = ProviderRouter()
+
+    router.load()
+
+    account = router.account_pool.next_available("codex", "o1-preview")
+    assert account is not None
+    assert account.account_id == "codex_oauth"
 
 
 def test_resolve_chain_uses_routing_rule_and_default(monkeypatch: pytest.MonkeyPatch) -> None:

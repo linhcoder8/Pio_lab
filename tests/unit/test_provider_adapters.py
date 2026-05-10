@@ -29,9 +29,12 @@ class FakeOpenAICompletions:
 
 
 class FakeOpenAIClient:
+    instances: list["FakeOpenAIClient"] = []
+
     def __init__(self, **kwargs: Any) -> None:
         self.kwargs = kwargs
         self.chat = SimpleNamespace(completions=FakeOpenAICompletions())
+        self.instances.append(self)
 
 
 @pytest.mark.asyncio
@@ -77,6 +80,55 @@ async def test_openai_compatible_adapters_smoke(
     assert response["provider"] == provider.name
     assert response["content"][0]["text"] == "OpenAI-compatible works"
     assert response["usage"] == {"input_tokens": 3, "output_tokens": 4}
+
+
+@pytest.mark.asyncio
+async def test_codex_adapter_can_use_codex_oauth_cache(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    codex_home = tmp_path / ".codex"
+    codex_home.mkdir()
+    (codex_home / "auth.json").write_text(
+        """
+        {
+          "auth_mode": "chatgpt",
+          "OPENAI_API_KEY": null,
+          "tokens": {
+            "access_token": "oauth-access-token",
+            "refresh_token": "oauth-refresh-token",
+            "account_id": "acct_test"
+          }
+        }
+        """,
+        encoding="utf-8",
+    )
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("CODEX_HOME", str(codex_home))
+
+    async def fake_run(self: CodexProvider, prompt: str, *, timeout: float) -> str:
+        assert "Say Pio_lab works" in prompt
+        assert timeout == 180.0
+        return "Codex OAuth works"
+
+    monkeypatch.setattr(CodexProvider, "_run_codex_cli", fake_run)
+
+    account = ProviderAccount(
+        provider="codex",
+        account_id="codex_oauth",
+        models=["gpt-4o"],
+        metadata={"credential_mode": "codex_oauth"},
+    )
+
+    response = await CodexProvider().complete(
+        account,
+        "gpt-4o",
+        [{"role": "user", "content": "Say Pio_lab works"}],
+    )
+
+    assert response["provider"] == "codex"
+    assert response["content"][0]["text"] == "Codex OAuth works"
+    assert response["raw"]["transport"] == "codex_cli"
 
 
 @pytest.mark.asyncio

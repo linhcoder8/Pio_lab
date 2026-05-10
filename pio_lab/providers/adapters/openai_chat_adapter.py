@@ -6,6 +6,7 @@ from typing import Any
 
 from pio_lab.providers.account_pool import ProviderAccount
 from pio_lab.providers.adapters.base_provider import BaseProvider, NormalizedResponse
+from pio_lab.providers.credentials import resolve_provider_credential
 from pio_lab.providers.errors import (
     ProviderAuthenticationError,
     ProviderConfigurationError,
@@ -100,23 +101,19 @@ class OpenAIChatProvider(BaseProvider):
         }
 
     def _api_key(self, account: ProviderAccount) -> str:
-        if account.env_key is None:
-            raise ProviderConfigurationError(
-                f"{self.name} account requires an env_key",
+        try:
+            return resolve_provider_credential(
                 provider=self.name,
                 account_id=account.account_id,
+                env_key=account.env_key,
+                metadata=account.metadata,
             )
-
-        import os
-
-        api_key = os.environ.get(account.env_key)
-        if not api_key:
+        except ProviderConfigurationError as error:
             raise ProviderConfigurationError(
-                f"Missing environment variable {account.env_key}",
+                str(error),
                 provider=self.name,
                 account_id=account.account_id,
-            )
-        return api_key
+            ) from error
 
 
 def _with_system(messages: list[dict[str, Any]], system: str | None) -> list[dict[str, Any]]:

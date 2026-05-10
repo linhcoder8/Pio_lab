@@ -31,6 +31,15 @@
 
 ## 📝 Detailed log
 
+### 2026-05-10 — Codex OAuth provider option added
+- ✅ M3/M4 provider credentials now support `credential_mode: codex_oauth`.
+- ✅ `config/providers.yaml` includes `codex_oauth`, so Codex can be selected when `OPENAI_API_KEY` is absent but `codex login` exists.
+- ✅ Codex OAuth uses local Codex CLI transport instead of OpenAI SDK because the cached OAuth token does not expose standard OpenAI API scopes.
+- ✅ Current machine verified: `codex login status` is logged in with ChatGPT; router selects `codex_oauth` for `codex/o1-preview`.
+- ✅ Real smoke: `RUN_REAL_PROVIDER_TESTS=1 python -m pytest tests/integration/test_codex_oauth_provider.py -v` pass.
+- ✅ M7 smoke with `ChiefOfStaff().run({"input": "hello"})` completed through ProviderRouter with `provider=codex`, `model=o1-preview`.
+- 🧪 Tests: full `python -m pytest -v` = 47 pass, 2 skipped; full `ruff check pio_lab tests` pass.
+
 ### 2026-05-10 — Milestone M7 done
 - ✅ `ChiefOfStaff.run({"input": "hello"})` completes a LangGraph execution.
 - ✅ Chief of Staff lifecycle trace is logged into Postgres `traces`.
@@ -38,7 +47,7 @@
 - ✅ Human approval pauses the graph with LangGraph interrupt and resumes after approval.
 - ✅ Web chat now routes through Chief of Staff instead of M6 echo.
 - 📝 Decisions: M7 uses a deterministic local fallback when no provider account is available, so the graph and Web test bed remain usable while real provider keys are deferred.
-- 🧪 Tests: 10 pass for focused M7/Web suite; full `tests/unit/` = 43 pass; full `ruff check pio_lab tests` pass.
+- 🧪 Tests: 10 pass for focused M7/Web suite; full `tests/unit/` = 43 pass at M7 commit; full `ruff check pio_lab tests` pass.
 - 🧪 Smoke: default `ChiefOfStaff().run({"input": "hello"})` returned `done`; Postgres trace query verified `chief_of_staff/internal/langgraph`.
 - ⏭️ Next: M8
 
@@ -193,6 +202,11 @@
 **D7 (2026-05-10):** M7 keeps a deterministic local fallback when provider accounts are unavailable.
   - Lý do: Sếp Linh đã defer provider thật đến sau khi app hoàn thành, nhưng M7/Web cần chạy được graph end-to-end ngay.
   - Trade-off: Fast-path answer can be placeholder until API keys are configured; all real LLM calls still go through ProviderRouter when credentials exist.
+  - Có thể revisit?: yes
+
+**D8 (2026-05-10):** Add Codex OAuth credential mode for M3/M4 provider routing.
+  - Lý do: Sếp Linh muốn có option dùng `codex login`/ChatGPT OAuth thay vì chỉ nhập `OPENAI_API_KEY`.
+  - Trade-off: API key vẫn là default khuyến nghị cho automation; OAuth cache chạy qua Codex CLI local, chậm hơn SDK và chưa có structured tool loop.
   - Có thể revisit?: yes
 
 ---

@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any
 
+from pio_lab.providers.credentials import has_provider_credentials
 from pio_lab.utils.helpers import utc_now
 
 
@@ -35,9 +35,18 @@ class ProviderAccount:
 
     def has_credentials(self) -> bool:
         """Return whether the account has required credentials available."""
-        if self.env_key is None:
+        if (
+            self.env_key is None
+            and not self.metadata.get("credential_mode")
+            and not self.metadata.get("credential_modes")
+        ):
             return True
-        return bool(os.environ.get(self.env_key))
+        return has_provider_credentials(
+            provider=self.provider,
+            account_id=self.account_id,
+            env_key=self.env_key,
+            metadata=self.metadata,
+        )
 
     def is_available(self, model: str, now: datetime | None = None) -> bool:
         """Return whether the account can be selected for a call."""
