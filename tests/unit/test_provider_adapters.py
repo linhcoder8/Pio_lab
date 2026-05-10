@@ -9,7 +9,7 @@ import warnings
 import pytest
 
 from pio_lab.providers.account_pool import ProviderAccount
-from pio_lab.providers.adapters.codex_adapter import CodexProvider
+from pio_lab.providers.adapters.codex_adapter import CodexProvider, _resolve_codex_command
 from pio_lab.providers.adapters.deepseek_adapter import DeepSeekProvider
 from pio_lab.providers.adapters.gemini_adapter import GeminiProvider
 from pio_lab.providers.adapters.ollama_adapter import OllamaProvider
@@ -129,6 +129,18 @@ async def test_codex_adapter_can_use_codex_oauth_cache(
     assert response["provider"] == "codex"
     assert response["content"][0]["text"] == "Codex OAuth works"
     assert response["raw"]["transport"] == "codex_cli"
+
+
+def test_codex_command_resolution_prefers_windows_cmd_wrapper(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    wrapper = tmp_path / "codex.cmd"
+    wrapper.write_text("@echo off\n", encoding="utf-8")
+    monkeypatch.delenv("CODEX_COMMAND", raising=False)
+    monkeypatch.setenv("PATH", str(tmp_path))
+
+    assert _resolve_codex_command().lower().endswith("codex.cmd")
 
 
 @pytest.mark.asyncio

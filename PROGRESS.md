@@ -43,8 +43,9 @@
 - ✅ Real provider smoke through Codex OAuth passes: `RUN_REAL_PROVIDER_TESTS=1 python -m pytest tests/integration/test_codex_oauth_provider.py -v`.
 - ✅ Added opt-in live department mode: `DEPARTMENT_WORKER_MODE=provider` makes text workers call ProviderRouter; `PROVIDER_ROUTING_PROFILE=codex_oauth` promotes selected text paths to Codex OAuth.
 - ✅ Live provider-backed department smoke passes: `RUN_REAL_PROVIDER_TESTS=1 python -m pytest tests/integration/test_live_provider_departments.py -v` verifies `RESEARCH.optics` output comes from Codex OAuth.
+- ✅ Fixed Windows Codex CLI resolution: Codex OAuth adapter now resolves `codex.cmd`/`codex.exe` instead of assuming bare `codex` is executable from Python subprocess.
 - ✅ `.env.example` keeps Telegram values blank and includes `TELEGRAM_TEST_CHAT_ID` placeholder; real secrets stay in `.env` only.
-- 🧪 Tests: full `python -m pytest -q` = 68 pass, 3 skipped; full `python -m ruff check .` pass.
+- 🧪 Tests: full `python -m pytest -q` = 69 pass, 3 skipped; full `python -m ruff check .` pass.
 - ⏭️ Next: restart Telegram bot with `.env` live mode, then send a research/content task and confirm archive output text is provider-backed.
 
 ### 2026-05-10 — MVP hardening: full-flow integration tests

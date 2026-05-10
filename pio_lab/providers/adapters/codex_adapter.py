@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import shutil
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -78,7 +79,7 @@ class CodexProvider(OpenAIChatProvider):
         }
 
     async def _run_codex_cli(self, prompt: str, *, timeout: float) -> str:
-        command = os.environ.get("CODEX_COMMAND", "codex")
+        command = _resolve_codex_command()
         with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False, suffix=".txt") as file:
             output_path = Path(file.name)
 
@@ -121,6 +122,20 @@ class CodexProvider(OpenAIChatProvider):
             ) from error
         finally:
             output_path.unlink(missing_ok=True)
+
+
+def _resolve_codex_command() -> str:
+    """Resolve the Codex CLI command, including Windows npm wrappers."""
+    configured = os.environ.get("CODEX_COMMAND")
+    if configured:
+        resolved = shutil.which(configured)
+        return resolved or configured
+
+    for candidate in ("codex", "codex.cmd", "codex.exe"):
+        resolved = shutil.which(candidate)
+        if resolved:
+            return resolved
+    return "codex"
 
 
 def _codex_prompt(
