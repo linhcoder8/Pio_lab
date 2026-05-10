@@ -1,0 +1,2 @@
+"""QA department concrete workers."""
+

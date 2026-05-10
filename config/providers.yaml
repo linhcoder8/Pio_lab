@@ -42,6 +42,13 @@ providers:
         models:
           - gpt-4o-mini
         priority: 2
+      - id: codex_oauth
+        credential_mode: codex_oauth
+        models:
+          - gpt-4o
+          - gpt-4o-mini
+          - o1-preview
+        priority: 3
 
   gemini:
     type: cloud
