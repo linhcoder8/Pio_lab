@@ -35,7 +35,7 @@
 - ✅ `.env` has `TELEGRAM_BOT_TOKEN` and `TELEGRAM_ALLOWED_USERS` configured.
 - ✅ `python scripts/smoke_telegram.py` validates Telegram `getMe` successfully for `@Chief_pio_bot` without printing the token.
 - ✅ Added `scripts/smoke_telegram.py` for repeatable token/send smoke and `scripts/start_telegram_bot.py` for local polling mode.
-- ✅ Telegram whitelist rejection now returns the sender's numeric user id and `/whoami` works even before whitelist approval.
+- ✅ Telegram whitelist rejection now returns the sender's numeric user id; `/whoami` is registered as a real Telegram command and works before whitelist approval.
 - ✅ `.env.example` keeps Telegram values blank and includes `TELEGRAM_TEST_CHAT_ID` placeholder; real secrets stay in `.env` only.
 - 🧪 Tests: full `python -m pytest -q` = 67 pass, 2 skipped; full `python -m ruff check .` pass.
 - ⏭️ Next: start `python scripts/start_telegram_bot.py`, send a message to the bot from the allowed Telegram account, then optionally run `python scripts/smoke_telegram.py --send-test --chat-id <chat_id>`.

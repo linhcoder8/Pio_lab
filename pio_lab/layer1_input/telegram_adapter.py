@@ -85,6 +85,7 @@ class TelegramAdapter:
         application.add_handler(CommandHandler("start", self._telegram_update_handler))
         application.add_handler(CommandHandler("help", self._telegram_update_handler))
         application.add_handler(CommandHandler("status", self._telegram_update_handler))
+        application.add_handler(CommandHandler("whoami", self._telegram_update_handler))
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self._telegram_update_handler))
         return application
 
@@ -114,7 +115,10 @@ def _command_response(text: str, *, user_id: int | str) -> str | None:
     if command == "/start":
         return "Pio_lab Telegram đã sẵn sàng."
     if command == "/help":
-        return "Gửi yêu cầu cho Pio_lab; hệ thống sẽ điều phối qua Chief of Staff."
+        return (
+            "Gửi yêu cầu cho Pio_lab; hệ thống sẽ điều phối qua Chief of Staff.\n"
+            "Dùng /whoami để xem Telegram user id."
+        )
     if command == "/status":
         return "Pio_lab online."
     if command == "/whoami":
