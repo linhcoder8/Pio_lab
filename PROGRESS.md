@@ -36,9 +36,12 @@
 - ✅ `python scripts/smoke_telegram.py` validates Telegram `getMe` successfully for `@Chief_pio_bot` without printing the token.
 - ✅ Added `scripts/smoke_telegram.py` for repeatable token/send smoke and `scripts/start_telegram_bot.py` for local polling mode.
 - ✅ Telegram whitelist rejection now returns the sender's numeric user id; `/whoami` is registered as a real Telegram command and works before whitelist approval.
+- ✅ Telegram live full-flow works from allowed account: inbound Telegram → Chief of Staff → department/QA → reply.
+- ✅ Live archive verified in Postgres `tasks`: 4 rows with `channel=telegram`, `status=done`, latest IDs include `c2801cb1-9470-477b-b069-9fa5741eafda`.
+- ✅ Live archive verified in Obsidian vault under `vault/tasks/2026-05-10/*.md`.
 - ✅ `.env.example` keeps Telegram values blank and includes `TELEGRAM_TEST_CHAT_ID` placeholder; real secrets stay in `.env` only.
 - 🧪 Tests: full `python -m pytest -q` = 67 pass, 2 skipped; full `python -m ruff check .` pass.
-- ⏭️ Next: start `python scripts/start_telegram_bot.py`, send a message to the bot from the allowed Telegram account, then optionally run `python scripts/smoke_telegram.py --send-test --chat-id <chat_id>`.
+- ⏭️ Next: create/merge PR, then configure provider keys and live smoke real provider-backed department outputs.
 
 ### 2026-05-10 — MVP hardening: full-flow integration tests
 - ✅ Replaced placeholder `tests/integration/test_full_flow.py` with real end-to-end coverage.
