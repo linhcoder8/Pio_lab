@@ -53,5 +53,13 @@ class StatusTracker:
         """Return status for one provider call."""
         return self._statuses.get((routing_key, provider, model))
 
+    def list_statuses(self) -> list[ProviderCallStatus]:
+        """Return all tracked provider call statuses."""
+        return sorted(
+            self._statuses.values(),
+            key=lambda status: str(status.updated_at),
+            reverse=True,
+        )
+
 
 __all__ = ["ProviderCallState", "ProviderCallStatus", "StatusTracker"]

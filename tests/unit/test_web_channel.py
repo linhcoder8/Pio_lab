@@ -87,6 +87,23 @@ def test_api_chat_rejects_unauthenticated_message() -> None:
     assert response.status_code == 401
 
 
+def test_dashboard_state_exposes_ui_runtime_data_after_login() -> None:
+    client = _client()
+    client.post(
+        "/login",
+        content="password=test-password",
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+
+    response = client.get("/api/dashboard/state")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert "departments" in data
+    assert "providers" in data
+    assert "routing" in data
+
+
 def test_websocket_routes_authenticated_message() -> None:
     client = _client()
     client.post(

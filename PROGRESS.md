@@ -4,7 +4,7 @@
 
 **Phase hiện tại:** MVP Phase 1
 **Bắt đầu:** 2026-05-04
-**Last update:** 2026-05-10 (Telegram provider failure handling)
+**Last update:** 2026-05-11 (Command Center UI)
 
 ---
 
@@ -30,6 +30,18 @@
 ---
 
 ## 📝 Detailed log
+
+### 2026-05-11 — Command Center UI from Whitebook
+- ✅ Read `E:\PIO_lab\Whitebook Pio_lab.md`, architecture reference, ORG diagram, and request-flow diagram.
+- ✅ Rebuilt `/` as Pio_lab Command Center with tabs: Command, ORG, Architecture, Request Flow, Providers, and Memory.
+- ✅ Command tab keeps direct chat through `/api/chat` and quick prompts for research/content/report flows.
+- ✅ ORG tab renders live DepartmentRegistry data and displays `ORG_pio_lab_final.png`.
+- ✅ Architecture and Request Flow tabs serve the provided reference assets from `E:\PIO_lab`.
+- ✅ Providers tab lists configured providers/accounts/models/routing rules and can run direct provider tests via `/api/providers/test`.
+- ✅ Memory tab shows recent archived tasks and provider traces when Postgres is available.
+- 🧪 Tests: full `python -m pytest -q` = 74 pass, 3 skipped; full `python -m ruff check .` pass.
+- 🧪 Local server verified on `http://127.0.0.1:8001`: `/health`, `/login`, and reference image route load successfully.
+- ⏭️ Next: extend provider management from read/test UI to editable account/model/routing forms.
 
 ### 2026-05-10 — Telegram live smoke prepared
 - ✅ `.env` has `TELEGRAM_BOT_TOKEN` and `TELEGRAM_ALLOWED_USERS` configured.
